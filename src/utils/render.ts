@@ -87,7 +87,7 @@ function processToken(token: Token, env?: Record<string, any>) {
 
 defaultRules.code_inline = function (tokens: Token[], idx: number, _: any, __: any, slf: Renderer) {
   const token = tokens[idx]
-  return h('code', { ...slf.renderAttrs(token), key: idx } as any, token.content)
+  return h('code', { ...slf.renderAttrs(token) as any, key: idx } as any, token.content)
 }
 
 defaultRules.code_block = function (tokens: Token[], idx: number, _: any, __: any, slf: Renderer) {
@@ -192,7 +192,7 @@ defaultRules.softbreak = function (_: Token[], __: number, options: any) {
   return options.breaks ? h('br') : null
 }
 
-defaultRules.text = function (tokens: Token[], idx: number, options: any, env: any) {
+defaultRules.text = function (tokens: Token[], idx: number, _: any, env: any) {
   const token = tokens[idx]
   if (env.sanitize) {
     // 检查 content 是否包含是句尾符号，如 '，', '。', '？', '！', '. '

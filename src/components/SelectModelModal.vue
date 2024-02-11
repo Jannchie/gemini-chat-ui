@@ -18,8 +18,10 @@ const models = [
   'gpt-3.5-turbo-0125',
   'gpt-3.5-turbo-16k-0613',
 ]
-const model = defineModel('model')
-const show = defineModel()
+const model = defineModel<string>('model', {
+  required: true,
+})
+const show = defineModel<boolean>()
 const modalRef = ref<HTMLElement | null>(null)
 onClickOutside(modalRef, () => {
   show.value = false
