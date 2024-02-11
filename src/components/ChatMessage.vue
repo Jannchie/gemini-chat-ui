@@ -56,6 +56,16 @@ throttledWatch([message], () => {
   trailing: true,
 })
 
+debouncedWatch([message], () => {
+  if (props.role === 'assistant') {
+    result.value = md.render(message.value, {
+      sanitize: true,
+    })
+  }
+}, {
+  debounce: 1000,
+})
+
 const StreamMarkdown = defineComponent({
   setup() {
     return () => {

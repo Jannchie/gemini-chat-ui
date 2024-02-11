@@ -3,7 +3,7 @@ import OpenAI from 'openai'
 
 interface Chat {
   content: string
-  role: string
+  role: 'user' | 'assistant' | 'system'
 }
 
 const conversation = ref<Chat[]>([])
@@ -26,7 +26,7 @@ type ModelName =
   | 'gpt-3.5-turbo-0125'
   | 'gpt-3.5-turbo-16k-0613'
 
-const model = ref<ModelName>('gpt-3.5-turbo')
+const model = ref<ModelName>('gpt-3.5-turbo-0125')
 const displayModelName = computed(() => {
   switch (model.value) {
     case 'gpt-4-0125-preview':
@@ -143,10 +143,12 @@ const isMobile = computed(() => {
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const rows = ref(1)
 watch([input, textareaRef], () => {
-  if (textareaRef.value) {
-    const targetRows = getNumberOfLines(textareaRef.value)
-    rows.value = targetRows
-  }
+  nextTick(() => {
+    if (textareaRef.value) {
+      const targetRows = getNumberOfLines(textareaRef.value)
+      rows.value = targetRows
+    }
+  })
 }, { immediate: true })
 function getNumberOfLines(textarea: HTMLTextAreaElement) {
   // 收缩，获取行数，然后展开
@@ -261,9 +263,8 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
               const content = `${input.trim()}\n`
               input = ''
               conversation.push({ role: 'user', content })
-              conversation.push({ role: 'assistant', content: '' })
               const stream = await openai.chat.completions.create({
-                messages: [{ role: 'user', content }],
+                messages: conversation,
                 model,
                 stream: true,
               }).catch((err) => {
@@ -291,6 +292,7 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
                   throw err;
                 }
               })
+              conversation.push({ role: 'assistant', content: '' })
               if (!stream) {
                 return
               }
