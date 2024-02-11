@@ -6,7 +6,9 @@
 
 [Online Demo](https://gemini-chat-ui-six.vercel.app/)
 
-![preview](./preview/gumini-style-chat-ui.mp4)
+<p align="center" style="overflow: hidden; border-radius:">
+  <img src="preview/gumini-style-chat-ui.gif">
+</p>
 
 ## Features
 
