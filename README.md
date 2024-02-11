@@ -1,5 +1,13 @@
 # Gemini Chat UI
 
+[![CodeTime Badge](https://img.shields.io/endpoint?style=social&color=222&url=https%3A%2F%2Fapi.codetime.dev%2Fshield%3Fid%3D2%26project%3Dgemini-chat-ui%26in=0)](https://codetime.dev)
+
+## DEMO
+
+[Online Demo](https://gemini-chat-ui-six.vercel.app/)
+
+![preview](./preview/gumini-style-chat-ui.mp4)
+
 ## Features
 
 - [x] Support for ChatGPT API.
