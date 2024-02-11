@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import markdownit from 'markdown-it'
 import Shikiji from 'markdown-it-shikiji'
-import { TransitionGroup } from 'vue'
+import type { VNode } from 'vue'
 import VNodePlugin from '../utils/render'
 
 const props = defineProps<{
@@ -26,9 +26,56 @@ onMounted(async () => {
   }))
 })
 
-const result = ref('')
+const result = ref<VNode[]>([])
 const message = computed(() => props.content)
 const prevLastLine = ref('')
+const elMap = new Map<Element, NodeJS.Timeout>()
+const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
+// watch Subdomtree change
+const observer = new MutationObserver(() => {
+  if (streamMarkdownWrapperRef.value) {
+    const nodes = streamMarkdownWrapperRef.value.querySelectorAll('.transition-opacity')
+    nodes.forEach((node) => {
+      if (elMap.has(node)) {
+        clearTimeout(elMap.get(node)!)
+      }
+      else {
+        node.classList.add('op-0')
+      }
+      const int = setTimeout(() => {
+        node.classList.remove('op-0')
+      }, 50)
+      elMap.set(node, int)
+    })
+  }
+})
+
+onMounted(() => {
+  if (streamMarkdownWrapperRef.value) {
+    observer.observe(streamMarkdownWrapperRef.value, {
+      childList: true,
+      subtree: true,
+    })
+  }
+})
+
+function editorResult(childrenRaw: VNode[]): VNode[] {
+  const children = childrenRaw.flat(20)
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i]
+    child.key = i
+    child.props = {
+      ...child.props,
+      k: i,
+      class: 'transition-opacity duration-500 ease-in-out',
+    }
+    if (child.children && Array.isArray(child.children) && child.children.length > 0) {
+      editorResult(child.children as VNode[])
+    }
+  }
+  return children
+}
+
 throttledWatch([message], () => {
   let msg = message.value
 
@@ -45,9 +92,13 @@ throttledWatch([message], () => {
   const content = spliteContent(msg)
 
   prevLastLine.value = lastLine
-  result.value = md.render(content, {
+  const r = md.render(content, {
     sanitize: props.role === 'assistant',
-  })
+  }) as unknown as VNode[]
+  result.value = editorResult(r);
+  (function () {
+    (window as any).render = (v: any) => result.value = v
+  }())
 
   function spliteContent(msg: string) {
     const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
@@ -68,23 +119,18 @@ throttledWatch([message], () => {
 
 debouncedWatch([message], () => {
   if (props.role === 'assistant') {
-    result.value = md.render(message.value, {
+    result.value = editorResult(md.render(message.value, {
       sanitize: true,
-    })
+    }) as any)
   }
 }, {
-  debounce: 1000,
+  debounce: 100,
 })
 
 const StreamMarkdown = defineComponent({
   setup() {
     return () => {
-      return h(TransitionGroup, {
-        name: 'fade',
-        duration: 2000,
-      }, () => {
-        return result.value
-      })
+      return result.value
     }
   },
 })
@@ -124,6 +170,7 @@ const StreamMarkdown = defineComponent({
       <div
         v-if="role === 'assistant'"
         key="prose"
+        ref="streamMarkdownWrapperRef"
         class="prose"
       >
         <StreamMarkdown />
@@ -138,7 +185,7 @@ const StreamMarkdown = defineComponent({
 </template>
 
 <style>
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active {
   transition: opacity 1s;
 }
 
@@ -154,5 +201,8 @@ const StreamMarkdown = defineComponent({
 }
 p {
   white-space: pre-wrap;
+}
+.line {
+  transition: opacity 0.5s;
 }
 </style>

@@ -1,5 +1,5 @@
 import type { VNode } from 'vue'
-import { Comment, Fragment, Text, TransitionGroup, createVNode, h } from 'vue'
+import { Comment, Fragment, Text, createVNode, h } from 'vue'
 import type Token from 'markdown-it/lib/token'
 import type Renderer from 'markdown-it/lib/renderer'
 import { escapeHtml, unescapeAll } from 'markdown-it/lib/common/utils'
@@ -87,7 +87,7 @@ function processToken(token: Token, env?: Record<string, any>) {
 
 defaultRules.code_inline = function (tokens: Token[], idx: number, _: any, __: any, slf: Renderer) {
   const token = tokens[idx]
-  return h('code', { ...slf.renderAttrs(token) as any, key: idx } as any, token.content)
+  return createVNode('code', { ...slf.renderAttrs(token) as any, key: idx } as any, token.content)
 }
 
 defaultRules.code_block = function (tokens: Token[], idx: number, _: any, __: any, slf: Renderer) {
@@ -143,10 +143,10 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
     delete attrs[DOM_ATTR_NAME.SOURCE_LINE_START]
     delete attrs[DOM_ATTR_NAME.SOURCE_LINE_END]
 
-    return h(
+    return createVNode(
       'pre',
       preAttrs,
-      [h('code', { key: highlighted, ...attrs, innerHTML: highlighted }, [])],
+      [createVNode('code', { key: highlighted, ...attrs, innerHTML: highlighted }, [])],
     )
   }
 
@@ -200,9 +200,9 @@ defaultRules.text = function (tokens: Token[], idx: number, _: any, env: any) {
     // 分割英语 (?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)
     // 分割中文 (?<=[。？！；])
     const splited = token.content.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
-    return createVNode(Fragment, {}, splited.map((content, i) => {
+    return splited.map((content, i) => {
       return createVNode('span', { key: i }, { default: () => content })
-    }))
+    })
   }
   else {
     // console.log('text', token)
@@ -262,13 +262,13 @@ function renderToken(this: Renderer, tokens: Token[], idx: number): any {
 
   // Tight list paragraphs
   if (token.hidden) {
-    return h(Fragment, {}, [])
+    return createVNode(Fragment, {}, [])
   }
 
   if (token.tag === '--') {
-    return h(Comment)
+    return createVNode(Comment)
   }
-  return h(token.tag, this.renderAttrs(token) as any, [])
+  return createVNode(token.tag, this.renderAttrs(token) as any, [])
 }
 
 function renderAttrs(this: Renderer, token: Token) {
@@ -303,8 +303,7 @@ function render(this: Renderer, tokens: Token[], options: any, env: any) {
     let parent: VNode | null = null
 
     if (type === 'inline') {
-      // console.log(token.children, this.render(token.children || [], options, env))
-      vnode = h(TransitionGroup, { name: 'fade', duration: 2000 }, () => this.render(token.children || [], options, env))
+      vnode = this.render(token.children || [], options, env) as any
     }
     else if (rules[type]) {
       const result = rules[type](tokens, i, options, env, this)
