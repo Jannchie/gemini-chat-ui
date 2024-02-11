@@ -28,29 +28,38 @@ onMounted(async () => {
 
 const result = ref('')
 const message = computed(() => props.content)
+const prevLastLine = ref('')
 throttledWatch([message], () => {
   let msg = message.value
 
-  const lastLine = message.value.trim().split('\n').pop() ?? ''
+  const lastLine = message.value.trim().split(/\n/).pop() ?? ''
   if (lastLine.startsWith('`') && (lastLine === '```' || lastLine === '``' || lastLine === '`')) {
     return
   }
-
-  // 如果 '`' 的个数为奇数，则说明代码块没有闭合，移除最后一个 '`' 以及之后的内容
-  if ((message.value.match(/`/g) || []).length % 2 === 1) {
+  // 如果 '`' 的个数为奇数，则说明代码块没有闭合，且连续三个 '```' 的个数为偶数，移除最后一个 '`' 以及之后的内容
+  if ((message.value.match(/`/g) || []).length % 2 === 1 && (message.value.match(/```/g) || []).length % 2 === 0) {
     const index = message.value.lastIndexOf('`')
     msg = message.value.slice(0, index)
   }
 
-  const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
-  if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
-    sentences.pop() // 移除最后一个句子
-  }
+  const content = spliteContent(msg)
 
-  const content = sentences.join('')
+  prevLastLine.value = lastLine
   result.value = md.render(content, {
     sanitize: props.role === 'assistant',
   })
+
+  function spliteContent(msg: string) {
+    const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
+    // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
+    if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
+      sentences.pop() // 移除最后一个句子
+      const content = sentences.join('')
+      return content
+    }
+    // 否则，不需要移除
+    return msg
+  }
 }, {
   throttle: 100,
   immediate: true,
@@ -132,6 +141,11 @@ const StreamMarkdown = defineComponent({
 .fade-enter-active, .fade-leave-active {
   transition: opacity 1s;
 }
+
+.fade-leave-active {
+  position: absolute;
+}
+
 .fade-enter-from, .fade-leave-to {
   opacity: 0;
 }
