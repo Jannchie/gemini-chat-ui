@@ -65,11 +65,13 @@ const displayModelName = computed(() => {
       return 'GPT-3.5 Turbo 16k 0613'
   }
 })
-const apiKey = ref('')
-const openai = new OpenAI({
+
+const apiKey = ref(import.meta.env.VITE_DEFAULT_API_KEY)
+
+const openai = computed(() => new OpenAI({
   apiKey: apiKey.value,
   dangerouslyAllowBrowser: true,
-})
+}))
 
 const groupedConversation = computed(() => {
   // 处理 conversation，每次轮到 ai 说话后，添加新的组，否则添加到上一组
@@ -134,6 +136,29 @@ watch(groupCount, () => {
 const input = ref('重复这句话：这是一段带有内联md代码的文本，例如 print("Hello, world!") 是一个常见的编程语句。')
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
+const isMobile = computed(() => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+})
+
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const rows = ref(1)
+watch([input, textareaRef], () => {
+  if (textareaRef.value) {
+    const targetRows = getNumberOfLines(textareaRef.value)
+    rows.value = targetRows
+  }
+}, { immediate: true })
+function getNumberOfLines(textarea: HTMLTextAreaElement) {
+  // 收缩，获取行数，然后展开
+  textarea.style.height = '0px'
+  const style = window.getComputedStyle(textarea)
+  const lineHeight = Number.parseInt(style.lineHeight)
+  const padding = Number.parseInt(style.paddingTop) + Number.parseInt(style.paddingBottom)
+  const textareaHeight = textarea.scrollHeight - padding
+  const numberOfLines = Math.ceil(textareaHeight / lineHeight)
+  textarea.style.height = ''
+  return numberOfLines
+}
 </script>
 
 <template>
@@ -176,7 +201,7 @@ const streaming = ref(false)
             <ChatMessage
               v-for="c, j in g"
               :key="j"
-              :avatar="c.role"
+              :role="c.role"
               :content="c.content"
               :loading="streaming && groupedConversation.length - 1 === i"
             />
@@ -184,13 +209,51 @@ const streaming = ref(false)
         </TransitionGroup>
       </div>
       <div class="input-section relative flex flex-col items-center gap-1 px-4">
+        <!-- summit on mobile -->
         <textarea
+          ref="textareaRef"
           v-model="input"
           type="text"
-          class="z-10 max-w-830px w-full flex-grow-0 rounded-full bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-indigo-7 focus-visible:outline-offset-0"
+          style="resize: none; scrollbar-width: none;"
+          :rows="rows"
+          :class="{
+            'rounded-[3rem]': rows === 1,
+            'rounded-[1rem]': rows !== 1,
+          }"
+          class="z-10 max-w-830px w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-indigo-7 focus-visible:outline-offset-0"
           placeholder="Input your question here"
-          @keydown.enter="async () => {
+          @keydown.stop.prevent.enter="async (e) => {
             if (streaming) {
+              return
+            }
+            if (!input.trim()) {
+              return
+            }
+            const target = e.target as HTMLTextAreaElement
+            if (!isMobile && e.shiftKey && target) {
+              const selectStart = target.selectionStart
+              input = `${input.slice(0, selectStart)}\n${input.slice(target.selectionEnd)}`
+              if (e.target){
+                $nextTick(() => {
+                  const targetRows = Math.min(target.value.split('\n').length, 3)
+                  rows = targetRows
+                  target.scrollTop = target.scrollHeight
+                  target.selectionStart = selectStart + 1
+                  target.selectionEnd = selectStart + 1
+                })
+              }
+              return
+            }
+            if (isMobile) {
+              input += '\n'
+              const target = e.target as HTMLTextAreaElement
+              if (e.target){
+                $nextTick(() => {
+                  const rows = target.value.split('\n').length
+                  target.rows = rows
+                  target.scrollTop = target.scrollHeight
+                })
+              }
               return
             }
             streaming = true
@@ -203,7 +266,34 @@ const streaming = ref(false)
                 messages: [{ role: 'user', content }],
                 model,
                 stream: true,
+              }).catch((err) => {
+                if (err instanceof OpenAI.APIError) {
+                  switch (err.status) {
+                  case 401:
+                    conversation[conversation.length - 1].content = 'Invalid API Key.'
+                    break
+                  case 403:
+                    conversation[conversation.length - 1].content = 'API Key has no permission.'
+                    break
+                  case 429:
+                    conversation[conversation.length - 1].content = 'Rate limit exceeded.'
+                    break
+                  default:
+                    if ((err?.status ?? 0) >= 500) {
+                      conversation[conversation.length - 1].content = 'Server Error.'
+                    }
+                    else {
+                      conversation[conversation.length - 1].content = 'Error.'
+                    }
+                  }
+                }
+                else {
+                  throw err;
+                }
               })
+              if (!stream) {
+                return
+              }
               for await (const chunk of stream) {
                 if (chunk.choices[0].delta.content){
                   conversation[conversation.length - 1].content += chunk.choices[0].delta.content

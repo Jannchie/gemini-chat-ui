@@ -5,7 +5,7 @@ import { TransitionGroup } from 'vue'
 import VNodePlugin from '../utils/render'
 
 const props = defineProps<{
-  avatar: string
+  role: string
   content: string
   loading: boolean
 }>()
@@ -48,7 +48,7 @@ throttledWatch([message], () => {
 
   const content = sentences.join('')
   result.value = md.render(content, {
-    sanitize: props.avatar === 'assistant',
+    sanitize: props.role === 'assistant',
   })
 }, {
   throttle: 100,
@@ -74,7 +74,7 @@ const StreamMarkdown = defineComponent({
   <div class="m-auto max-w-712px w-full flex-grow-1 px-12 py-6">
     <div class="flex gap-4">
       <img
-        v-if="props.avatar === 'user'"
+        v-if="props.role === 'user'"
         alt="avatar"
         src="https://avatars.githubusercontent.com/u/29743310?v=4"
         class="h-8 w-8 rounded-full"
@@ -83,7 +83,7 @@ const StreamMarkdown = defineComponent({
         v-else
         :class="[
           {
-            'animate-spin': props.loading && avatar === 'assistant',
+            'animate-spin': props.loading && role === 'assistant',
           },
         ]"
         class="inline-block h-8 w-8"
@@ -102,7 +102,7 @@ const StreamMarkdown = defineComponent({
         </svg>
       </div>
       <div
-        v-if="avatar === 'assistant'"
+        v-if="role === 'assistant'"
         key="prose"
         class="prose"
       >
