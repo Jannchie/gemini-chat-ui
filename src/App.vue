@@ -133,7 +133,7 @@ watch(groupCount, () => {
   })
 })
 
-const input = ref('重复这句话：这是一段带有内联md代码的文本，例如 print("Hello, world!") 是一个常见的编程语句。')
+const input = ref('')
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
 const isMobile = computed(() => {
