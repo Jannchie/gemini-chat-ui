@@ -161,6 +161,59 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
   textarea.style.height = ''
   return numberOfLines
 }
+async function onSubmit() {
+  if (input.value.trim() === '' || streaming.value) {
+    return
+  }
+  streaming.value = true
+  try {
+    const content = `${input.value.trim()}\n`
+    input.value = ''
+    conversation.value.push({ role: 'user', content })
+    const stream = await openai.value.chat.completions.create({
+      messages: conversation.value,
+      model: model.value,
+      stream: true,
+    }).catch((err) => {
+      if (err instanceof OpenAI.APIError) {
+        conversation.value.push({ role: 'assistant', content: '' })
+        switch (err.status) {
+          case 401:
+            conversation.value[conversation.value.length - 1].content = 'Invalid API Key.'
+            break
+          case 403:
+            conversation.value[conversation.value.length - 1].content = 'API Key has no permission.'
+            break
+          case 429:
+            conversation.value[conversation.value.length - 1].content = 'Rate limit exceeded.'
+            break
+          default:
+            if ((err?.status ?? 0) >= 500) {
+              conversation.value[conversation.value.length - 1].content = 'Server Error.'
+            }
+            else {
+              conversation.value[conversation.value.length - 1].content = 'Error.'
+            }
+        }
+      }
+      else {
+        throw err
+      }
+    })
+    conversation.value.push({ role: 'assistant', content: '' })
+    if (!stream) {
+      return
+    }
+    for await (const chunk of stream) {
+      if (chunk.choices[0].delta.content) {
+        conversation.value[conversation.value.length - 1].content += chunk.choices[0].delta.content
+      }
+    }
+  }
+  finally {
+    streaming.value = false
+  }
+}
 </script>
 
 <template>
@@ -184,7 +237,7 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
           <input
             v-model="apiKey"
             placeholder="OpenAI API Key"
-            class="w-30 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-indigo-7 focus-visible:outline-offset-0"
+            class="w-30 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
             type="password"
           >
         </div>
@@ -211,103 +264,81 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
         </TransitionGroup>
       </div>
       <div class="input-section relative flex flex-col items-center gap-1 px-4">
-        <!-- summit on mobile -->
-        <textarea
-          ref="textareaRef"
-          v-model="input"
-          type="text"
-          style="resize: none; scrollbar-width: none;"
-          :rows="rows"
-          :class="{
-            'rounded-[3rem]': rows === 1,
-            'rounded-[1rem]': rows !== 1,
-          }"
-          class="z-10 max-w-830px w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-indigo-7 focus-visible:outline-offset-0"
-          placeholder="Input your question here"
-          @keydown.stop.prevent.enter="async (e) => {
-            if (streaming) {
-              return
-            }
-            if (!input.trim()) {
-              return
-            }
-            const target = e.target as HTMLTextAreaElement
-            if (!isMobile && e.shiftKey && target) {
-              const selectStart = target.selectionStart
-              input = `${input.slice(0, selectStart)}\n${input.slice(target.selectionEnd)}`
-              if (e.target){
-                $nextTick(() => {
-                  const targetRows = Math.min(target.value.split('\n').length, 3)
-                  rows = targetRows
-                  target.scrollTop = target.scrollHeight
-                  target.selectionStart = selectStart + 1
-                  target.selectionEnd = selectStart + 1
-                })
-              }
-              return
-            }
-            if (isMobile) {
-              input += '\n'
-              const target = e.target as HTMLTextAreaElement
-              if (e.target){
-                $nextTick(() => {
-                  const rows = target.value.split('\n').length
-                  target.rows = rows
-                  target.scrollTop = target.scrollHeight
-                })
-              }
-              return
-            }
-            streaming = true
-            try {
-              const content = `${input.trim()}\n`
-              input = ''
-              conversation.push({ role: 'user', content })
-              const stream = await openai.chat.completions.create({
-                messages: conversation,
-                model,
-                stream: true,
-              }).catch((err) => {
-                if (err instanceof OpenAI.APIError) {
-                  conversation.push({ role: 'assistant', content: '' })
-                  switch (err.status) {
-                  case 401:
-                    conversation[conversation.length - 1].content = 'Invalid API Key.'
-                    break
-                  case 403:
-                    conversation[conversation.length - 1].content = 'API Key has no permission.'
-                    break
-                  case 429:
-                    conversation[conversation.length - 1].content = 'Rate limit exceeded.'
-                    break
-                  default:
-                    if ((err?.status ?? 0) >= 500) {
-                      conversation[conversation.length - 1].content = 'Server Error.'
-                    }
-                    else {
-                      conversation[conversation.length - 1].content = 'Error.'
-                    }
-                  }
-                }
-                else {
-                  throw err;
-                }
-              })
-              conversation.push({ role: 'assistant', content: '' })
-              if (!stream) {
+        <div class="relative z-10 max-w-830px w-full overflow-hidden leading-0">
+          <div
+            :class="{
+              'right-[-48px]': !input.trim(),
+              'right-0': input.trim(),
+            }"
+            class="pointer-events-none absolute h-full w-full flex items-center justify-end p-2 transition-right"
+          >
+            <!-- <button
+              :disabled="streaming"
+              class="pointer-events-auto z-20 h-12 w-12 flex items-center justify-center rounded-full color-[#c4c7c5] transition-all hover:bg-neutral-7"
+            >
+              <i class="i-tabler-photo h-6 w-6" />
+            </button> -->
+            <button
+              :disabled="streaming"
+              :class="{
+                'opacity-0': !input.trim(),
+              }"
+              class="pointer-events-auto z-20 h-12 w-12 flex items-center justify-center rounded-full color-[#c4c7c5] transition-all hover:bg-neutral-7"
+              @click="onSubmit"
+            >
+              <i class="i-tabler-send h-6 w-6" />
+            </button>
+          </div>
+          <textarea
+            ref="textareaRef"
+            v-model="input"
+            type="text"
+            style="resize: none; scrollbar-width: none;"
+            :rows="rows"
+            :class="{
+              'rounded-[3rem]': rows === 1,
+              'rounded-[1rem]': rows !== 1,
+            }"
+            class="z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
+            placeholder="Input your question here"
+            @keydown.stop.prevent.enter="async (e) => {
+              if (streaming) {
                 return
               }
-              for await (const chunk of stream) {
-                if (chunk.choices[0].delta.content){
-                  conversation[conversation.length - 1].content += chunk.choices[0].delta.content
-                }
+              if (!input.trim()) {
+                return
               }
-            }
-            finally {
-              streaming = false
-            }
-          }"
-        />
+              const target = e.target as HTMLTextAreaElement
+              if (!isMobile && e.shiftKey && target) {
+                const selectStart = target.selectionStart
+                input = `${input.slice(0, selectStart)}\n${input.slice(target.selectionEnd)}`
+                if (e.target){
+                  $nextTick(() => {
+                    const targetRows = Math.min(target.value.split('\n').length, 3)
+                    rows = targetRows
+                    target.scrollTop = target.scrollHeight
+                    target.selectionStart = selectStart + 1
+                    target.selectionEnd = selectStart + 1
+                  })
+                }
+                return
+              }
+              if (isMobile) {
+                input += '\n'
+                const target = e.target as HTMLTextAreaElement
+                if (e.target){
+                  $nextTick(() => {
+                    const rows = target.value.split('\n').length
+                    target.rows = rows
+                    target.scrollTop = target.scrollHeight
+                  })
+                }
+                return
+              }
+              onSubmit()
+            }"
+          />
+        </div>
         <div class="py-1 text-sm color-[#c4c7c5]">
           Gemini Style Web UI for Chat Services
         </div>
