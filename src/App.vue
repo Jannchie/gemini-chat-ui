@@ -269,6 +269,7 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
                 stream: true,
               }).catch((err) => {
                 if (err instanceof OpenAI.APIError) {
+                  conversation.push({ role: 'assistant', content: '' })
                   switch (err.status) {
                   case 401:
                     conversation[conversation.length - 1].content = 'Invalid API Key.'
