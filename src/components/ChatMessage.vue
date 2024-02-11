@@ -29,12 +29,13 @@ onMounted(async () => {
 const result = ref('')
 const message = computed(() => props.content)
 throttledWatch([message], () => {
+  let msg = message.value
+
   const lastLine = message.value.trim().split('\n').pop() ?? ''
-  if (lastLine.startsWith('`') && lastLine !== '```') {
+  if (lastLine.startsWith('`') && (lastLine === '```' || lastLine === '``' || lastLine === '`')) {
     return
   }
 
-  let msg = message.value
   // 如果 '`' 的个数为奇数，则说明代码块没有闭合，移除最后一个 '`' 以及之后的内容
   if ((message.value.match(/`/g) || []).length % 2 === 1) {
     const index = message.value.lastIndexOf('`')
