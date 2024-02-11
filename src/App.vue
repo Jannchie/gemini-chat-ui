@@ -26,7 +26,10 @@ type ModelName =
   | 'gpt-3.5-turbo-0125'
   | 'gpt-3.5-turbo-16k-0613'
 
-const model = ref<ModelName>('gpt-3.5-turbo-0125')
+const model = ref<ModelName>(localStorage.getItem('model') as any ?? 'gpt-3.5-turbo-0125')
+watchEffect(() => {
+  localStorage.setItem('model', model.value)
+})
 const displayModelName = computed(() => {
   switch (model.value) {
     case 'gpt-4-0125-preview':
@@ -66,8 +69,11 @@ const displayModelName = computed(() => {
   }
 })
 
-const apiKey = ref(import.meta.env.VITE_DEFAULT_API_KEY)
-
+const defaultApiKey = sessionStorage.getItem('apiKey') ?? import.meta.env.VITE_DEFAULT_API_KEY
+const apiKey = ref(defaultApiKey)
+watchEffect(() => {
+  sessionStorage.setItem('apiKey', apiKey.value)
+})
 const openai = computed(() => new OpenAI({
   apiKey: apiKey.value,
   dangerouslyAllowBrowser: true,
