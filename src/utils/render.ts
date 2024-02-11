@@ -185,11 +185,11 @@ defaultRules.image = function (tokens: Token[], idx: number, options: any, env: 
   }, [])
 }
 
-defaultRules.hardbreak = function () {
-  return h('br')
+defaultRules.hardbreak = function (_: Token[], idx: number) {
+  return h('br', { key: idx })
 }
-defaultRules.softbreak = function (_: Token[], __: number, options: any) {
-  return options.breaks ? h('br') : null
+defaultRules.softbreak = function (_: Token[], idx: number, options: any) {
+  return options.breaks ? h('br', { key: idx }) : null
 }
 
 defaultRules.text = function (tokens: Token[], idx: number, _: any, env: any) {
