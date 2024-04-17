@@ -140,7 +140,8 @@ watch(groupCount, () => {
   })
 })
 
-const input = ref('介绍冒泡并给出 python 代码')
+const input = ref('')
+const inputHistory = useManualRefHistory(input)
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
 const isMobile = computed(() => {
@@ -175,6 +176,7 @@ async function onSubmit() {
   streaming.value = true
   try {
     const content = `${input.value.trim()}\n`
+    inputHistory.commit()
     input.value = ''
     conversation.value.push({ role: 'user', content })
     const stream = await openai.value.chat.completions.create({
@@ -306,8 +308,21 @@ async function onSubmit() {
               'rounded-[3rem]': rows === 1,
               'rounded-[1rem]': rows !== 1,
             }"
-            class="z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
+            class="z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
             placeholder="Input your question here"
+            @keydown.stop.up="async (e) => {
+              if (!(input === '')) return
+              const target = e.target as HTMLTextAreaElement
+              if (target.selectionStart === 0) {
+                const currentIdx = inputHistory.history.value.map(d => d.snapshot).indexOf(input)
+                if (currentIdx === -1) {
+                  input = inputHistory.history.value[0].snapshot
+                }
+                else {
+                  input = inputHistory.history.value[(currentIdx + 1) % inputHistory.history.value.length].snapshot
+                }
+              }
+            }"
             @keydown.stop.prevent.enter="async (e) => {
               if (streaming) {
                 return
