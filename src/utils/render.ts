@@ -260,10 +260,10 @@ function renderToken(this: Renderer, tokens: Token[], idx: number): any {
     return null
   }
 
-  // Tight list paragraphs
-  if (token.hidden) {
-    return createVNode(Fragment, {}, [])
-  }
+  // // Tight list paragraphs
+  // if (token.hidden) {
+  //   return createVNode(Fragment, {}, [])
+  // }
 
   if (token.tag === '--') {
     return createVNode(Comment)
@@ -297,7 +297,7 @@ function render(this: Renderer, tokens: Token[], options: any, env: any) {
       token.attrSet(DOM_ATTR_NAME.TOKEN_IDX, i.toString())
     }
 
-    const type = token.type
+    const { type } = token
 
     let vnode: VNode | null = null
     let parent: VNode | null = null

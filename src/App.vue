@@ -7,6 +7,7 @@ interface Chat {
 }
 
 const conversation = ref<Chat[]>([])
+
 type ModelName =
   | 'gpt-4-0125-preview'
   | 'gpt-4-turbo-preview'
@@ -139,7 +140,7 @@ watch(groupCount, () => {
   })
 })
 
-const input = ref('')
+const input = ref('介绍冒泡并给出 python 代码')
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
 const isMobile = computed(() => {

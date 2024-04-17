@@ -13,118 +13,89 @@ const md = markdownit({
   linkify: true,
   typographer: true,
   breaks: true,
+  html: true,
 } as any)
 
 md.use(VNodePlugin)
 onMounted(async () => {
   md.use(await Shikiji({
     themes: {
-      light: 'vitesse-light',
-      dark: 'vitesse-dark',
+      light: 'github-light',
+      dark: 'github-dark',
     },
     defaultColor: 'dark',
   }))
 })
 
-const result = ref<VNode[]>([])
 const message = computed(() => props.content)
-const prevLastLine = ref('')
-const elMap = new Map<Element, NodeJS.Timeout>()
 const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
-// watch Subdomtree change
-const observer = new MutationObserver(() => {
-  if (streamMarkdownWrapperRef.value) {
-    const nodes = streamMarkdownWrapperRef.value.querySelectorAll('.transition-opacity')
-    nodes.forEach((node) => {
-      if (elMap.has(node)) {
-        clearTimeout(elMap.get(node)!)
-      }
-      else {
-        node.classList.add('op-0')
-      }
-      const int = setTimeout(() => {
-        node.classList.remove('op-0')
-      }, 50)
-      elMap.set(node, int)
-    })
-  }
-})
 
-onMounted(() => {
-  if (streamMarkdownWrapperRef.value) {
-    observer.observe(streamMarkdownWrapperRef.value, {
-      childList: true,
-      subtree: true,
-    })
-  }
-})
-
-function editorResult(childrenRaw: VNode[]): VNode[] {
+function editResult(childrenRaw: VNode[]): VNode[] {
   const children = childrenRaw.flat(20)
   for (let i = 0; i < children.length; i++) {
     const child = children[i]
-    child.key = i
-    child.props = {
-      ...child.props,
-      k: i,
-      class: 'transition-opacity duration-500 ease-in-out',
+    // 如果包含文本节点
+    if (typeof child.children === 'string') {
+      child.props = {
+        ...child.props,
+        class: 'fade-in',
+      }
     }
     if (child.children && Array.isArray(child.children) && child.children.length > 0) {
-      editorResult(child.children as VNode[])
+      editResult(child.children as VNode[])
     }
   }
   return children
 }
-
-throttledWatch([message], () => {
-  let msg = message.value
-
-  const lastLine = message.value.trim().split(/\n/).pop() ?? ''
-  if (lastLine.startsWith('`') && (lastLine === '```' || lastLine === '``' || lastLine === '`')) {
-    return
+function spliteContent(msg: string) {
+  const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
+  // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
+  if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
+    sentences.pop() // 移除最后一个句子
   }
-  // 如果 '`' 的个数为奇数，则说明代码块没有闭合，且连续三个 '```' 的个数为偶数，移除最后一个 '`' 以及之后的内容
-  if ((message.value.match(/`/g) || []).length % 2 === 1 && (message.value.match(/```/g) || []).length % 2 === 0) {
-    const index = message.value.lastIndexOf('`')
-    msg = message.value.slice(0, index)
+  // 如果最后一个句子是列表项，则移除最后一个句子
+  if (/^[\d]+\./.test(sentences[sentences.length - 1])) {
+    sentences.pop() // 移除最后一个句子
   }
+  const content = sentences.join('')
+  return content
+}
 
+const content = computed(() => {
+  const msg = message.value
+
+  // TODO: 代码块没有闭合时，移除最后一个 '`' 以及之后的内容
+  // const lastLine = message.value.trim().split(/\n/).pop() ?? ''
+  // if (lastLine.startsWith('`') && (lastLine === '```' || lastLine === '``' || lastLine === '`')) {
+  //   return
+  // }
+  // let flag = 0
+  // // 如果 '`' 的个数为奇数，且连续三个 '```' 的个数为偶数，则说明代码块没有闭合，移除最后一个 '`' 以及之后的内容
+  // if ((message.value.match(/`/g) || []).length % 2 === 1 && (message.value.match(/```/g) || []).length % 2 === 0) {
+  //   // 如果存在连续三个 '```'，则 flag = 3
+  //   if (message.value.match(/```/g)?.length === 3) {
+  //     flag = 3
+  //   }
+  //   else {
+  //     flag = 1
+  //   }
+
+  //   const index = message.value.lastIndexOf('`')
+  //   msg = message.value.slice(0, index)
+  // }
+  // msg += '`'.repeat(flag)
   const content = spliteContent(msg)
 
-  prevLastLine.value = lastLine
-  const r = md.render(content, {
-    sanitize: props.role === 'assistant',
-  }) as unknown as VNode[]
-  result.value = editorResult(r);
-  (function () {
-    (window as any).render = (v: any) => result.value = v
-  }())
-
-  function spliteContent(msg: string) {
-    const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
-    // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
-    if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
-      sentences.pop() // 移除最后一个句子
-      const content = sentences.join('')
-      return content
-    }
-    // 否则，不需要移除
-    return msg
-  }
-}, {
-  throttle: 100,
-  immediate: true,
-  trailing: true,
+  return content
 })
 
-debouncedWatch([message], () => {
-  if (props.role === 'assistant') {
-    result.value = editorResult(md.render(message.value, {
-      sanitize: true,
-    }) as any)
-  }
-}, {
-  debounce: 100,
+const result = computedWithControl([
+  content,
+], () => {
+  const r = md.render(content.value ?? '', {
+    sanitize: props.role === 'assistant',
+  }) as unknown as VNode[]
+  return editResult(r)
 })
 
 const StreamMarkdown = defineComponent({
@@ -134,10 +105,18 @@ const StreamMarkdown = defineComponent({
     }
   },
 })
+
+debouncedWatch([message], () => {
+  if (props.role === 'assistant') {
+    result.trigger()
+  }
+}, {
+  debounce: 100,
+})
 </script>
 
 <template>
-  <div class="m-auto max-w-712px w-full flex-grow-1 px-12 py-6">
+  <div class="m-auto max-w-712px w-full flex-grow-1 py-6">
     <div class="flex gap-4">
       <img
         v-if="props.role === 'user'"
@@ -173,13 +152,23 @@ const StreamMarkdown = defineComponent({
         ref="streamMarkdownWrapperRef"
         class="prose"
       >
+        <!-- <component :is="() => result" /> -->
         <StreamMarkdown />
       </div>
       <pre
         v-else
-        class="whitespace-pre-wrap font-inherit"
+        class="grow whitespace-pre-wrap font-inherit"
         v-text="props.content"
       />
+      <!-- TODO:  Actions -->
+      <div class="w-10 shrink-0 op-0">
+        <button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-neutral-5/10">
+          <i
+            v-if="role === 'user'"
+            class="i-tabler-chevron-down"
+          />
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -204,5 +193,19 @@ p {
 }
 .line {
   transition: opacity 0.5s;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 </style>
