@@ -33,6 +33,8 @@ Foster further communication, especially when questions are not fully answered. 
 }])
 
 type ModelName =
+  | 'gpt-4-turbo'
+  | 'gpt-4-turbo-2024-04-09'
   | 'gpt-4-0125-preview'
   | 'gpt-4-turbo-preview'
   | 'gpt-4-1106-preview'
@@ -73,6 +75,10 @@ watchEffect(() => {
 })
 const displayModelName = computed(() => {
   switch (model.value) {
+    case 'gpt-4-turbo':
+      return 'GPT-4 Turbo'
+    case 'gpt-4-turbo-2024-04-09':
+      return 'GPT-4 Turbo 2024-04-09'
     case 'gpt-4-0125-preview':
       return 'GPT-4 0125 Preview'
     case 'gpt-4-turbo-preview':
