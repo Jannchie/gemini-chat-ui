@@ -1,12 +1,36 @@
 <script setup lang="ts">
 import OpenAI from 'openai'
+import { GPTTokens } from 'gpt-tokens'
 
 interface Chat {
   content: string
   role: 'user' | 'assistant' | 'system'
 }
+const conversation = ref<Chat[]>([{
+  role: 'system',
+  content: `You are a helpful assistant eager to elevate the quality of your responses. To achieve this, consider the following overarching principles:
 
-const conversation = ref<Chat[]>([])
+Understand the User’s Question:
+Ensure you fully grasp the real intent behind the question. This involves identifying key words and phrases, understanding the context, and pinpointing what the user is truly seeking to understand.
+
+Answer Clearly and Accurately:
+Focus on accuracy and relevance in your responses. If a question is multifaceted, address each part systematically to ensure comprehensive coverage.
+
+Provide Detailed Explanations and Step-by-Step Guidance:
+For inquiries that require explanations or procedural guidance, offer clear, detailed instructions. When possible, include examples to illustrate your points.
+
+Use Language Accessible to the User:
+Tailor the complexity of your language to suit the user’s background knowledge. Avoid overly technical or specialized terminology unless it’s essential for understanding your response.
+
+Acknowledge Limitations, Respond Honestly:
+If a question extends beyond your scope of knowledge, respond honestly rather than providing information that might mislead. Whenever possible, direct the user to credible resources.
+
+Value User Feedback:
+Use feedback from users, whether positive or negative, as an opportunity to learn and improve subsequent interactions.
+
+Encourage Interaction:
+Foster further communication, especially when questions are not fully answered. Guide users on how to provide more detailed information or ask more specific questions.`,
+}])
 
 type ModelName =
   | 'gpt-4-0125-preview'
@@ -28,6 +52,22 @@ type ModelName =
   | 'gpt-3.5-turbo-16k-0613'
 
 const model = ref<ModelName>(localStorage.getItem('model') as any ?? 'gpt-3.5-turbo-0125')
+
+const tokenCost = computed(() => {
+  try {
+    if (conversation.value.filter(d => d.role === 'assistant').length === 0) {
+      return null
+    }
+    return new GPTTokens({
+      model: model.value as any,
+      messages: conversation.value,
+    })
+  }
+  catch (e) {
+    return null
+  }
+})
+
 watchEffect(() => {
   localStorage.setItem('model', model.value)
 })
@@ -85,6 +125,9 @@ const groupedConversation = computed(() => {
   const result: Chat[][] = []
   let group: Chat[] = []
   for (const c of conversation.value) {
+    if (c.role === 'system') {
+      continue
+    }
     if (c.role === 'assistant') {
       group.push(c)
       result.push(group)
@@ -144,6 +187,8 @@ const input = ref('')
 const inputHistory = useManualRefHistory(input)
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
+const prevUSD = ref(0)
+const prevToken = ref(0)
 const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 })
@@ -221,8 +266,31 @@ async function onSubmit() {
   }
   finally {
     streaming.value = false
+    nextTick(() => {
+      prevUSD.value += tokenCost.value?.usedUSD ?? 0
+      prevToken.value += tokenCost.value?.usedTokens ?? 0
+    })
   }
 }
+
+const totalToken = computed(() => {
+  if (streaming.value) {
+    return prevToken.value + (tokenCost.value?.usedTokens ?? 0)
+  }
+  return prevToken.value
+})
+
+const totalUSD = computed(() => {
+  let usd = 0
+  if (streaming.value) {
+    usd = (prevUSD.value + (tokenCost.value?.usedUSD ?? 0))
+  }
+  else {
+    usd = prevUSD.value
+  }
+  // usd /= 0.0065  To JPY
+  return usd.toFixed(5)
+})
 </script>
 
 <template>
@@ -273,6 +341,13 @@ async function onSubmit() {
         </TransitionGroup>
       </div>
       <div class="input-section relative flex flex-col items-center gap-1 px-4">
+        <div
+          v-if="tokenCost"
+          class="z-11 text-sm op-50"
+        >
+          Used Tokens: {{ totalToken }} ({{ totalUSD }}$)
+        </div>
+
         <div class="relative z-10 max-w-830px w-full overflow-hidden leading-0">
           <div
             :class="{

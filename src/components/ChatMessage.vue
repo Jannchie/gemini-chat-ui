@@ -125,7 +125,7 @@ debouncedWatch([message], () => {
         class="h-8 w-8 rounded-full"
       >
       <div
-        v-else
+        v-else-if="props.role === 'assistant'"
         :class="[
           {
             'animate-spin': props.loading && role === 'assistant',
@@ -155,11 +155,12 @@ debouncedWatch([message], () => {
         <!-- <component :is="() => result" /> -->
         <StreamMarkdown />
       </div>
-      <pre
-        v-else
-        class="grow whitespace-pre-wrap font-inherit"
-        v-text="props.content"
-      />
+      <div v-else-if="role === 'user'">
+        <pre
+          class="grow whitespace-pre-wrap font-inherit"
+          v-text="props.content"
+        />
+      </div>
       <!-- TODO:  Actions -->
       <div class="w-10 shrink-0 op-0">
         <button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-neutral-5/10">
