@@ -254,6 +254,7 @@ async function onSubmit() {
     inputHistory.commit()
     input.value = ''
     conversation.value.push({ role: 'user', content })
+    conversation.value = [...conversation.value]
     const stream = await openai.value.chat.completions.create({
       messages: conversation.value,
       model: model.value,
@@ -363,6 +364,22 @@ const extraInfo = computed(() => {
         </div>
       </header>
       <div
+        v-if="conversation.length <= 1"
+        class="h-full overflow-x-hidden overflow-y-auto max-w-830px w-full m-auto text-3.5rem leading-4rem font-medium"
+      >
+        <div class="mt-8 mb-12">
+          <div class="gradient-text">
+            Hi there!
+          </div>
+          <div class="text-3rem animate-fade-delay">
+            <div class="op-25">
+              What can I help you with today?
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        v-else
         ref="scrollArea"
         class="h-full overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-92px-72px)]"
       >
@@ -547,6 +564,27 @@ textarea::-webkit-placeholder {
 
 textarea::placeholder {
   white-space: nowrap;
+}
+
+.gradient-text {
+  --gradient-color-1: #4285f4;
+  --gradient-color-2: #9b72cb;
+  --gradient-color-3: #d96570;
+  background: linear-gradient(to right, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), var(--gradient-color-3), var(--gradient-color-2), var(--gradient-color-1), var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-size: 500%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  animation: gradient-animation 1s forwards;
+}
+@keyframes gradient-animation {
+  0% {
+    background-position: 100%;
+  }
+  100% {
+    background-position: 0%;
+  }
 }
 
 @keyframes inputEnter {
