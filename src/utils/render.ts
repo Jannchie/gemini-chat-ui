@@ -1,8 +1,8 @@
 import type { VNode } from 'vue'
 import { Comment, Fragment, Text, createVNode, h } from 'vue'
-import type Token from 'markdown-it/lib/token'
-import type Renderer from 'markdown-it/lib/renderer'
-import { escapeHtml, unescapeAll } from 'markdown-it/lib/common/utils'
+import type Token from 'markdown-it/lib/token.mjs'
+import type Renderer from 'markdown-it/lib/renderer.mjs'
+import { escapeHtml, unescapeAll } from 'markdown-it/lib/common/utils.mjs'
 
 export interface Plugin<Ctx = any> {
   name: string

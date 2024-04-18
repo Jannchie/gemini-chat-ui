@@ -2,11 +2,27 @@
 import OpenAI from 'openai'
 import { GPTTokens } from 'gpt-tokens'
 
+function useSpeed(interval: number = 1000) {
+  const record = ref<[number, number][]>([])
+  function trigger(num = 1) {
+    record.value.push([Date.now(), num])
+    record.value = [...record.value].filter(d => d[0] > Date.now() - interval)
+  }
+
+  const speed = computed(() => {
+    return record.value.reduce((acc, cur) => acc + cur[1], 0) / (record.value[record.value.length - 1][0] - record.value[0][0]) * 1000
+  })
+  return {
+    speed,
+    trigger,
+  }
+}
+
 interface Chat {
   content: string
   role: 'user' | 'assistant' | 'system'
 }
-const conversation = ref<Chat[]>([{
+const conversation = shallowRef<Chat[]>([{
   role: 'system',
   content: `You are a helpful assistant eager to elevate the quality of your responses. To achieve this, consider the following overarching principles:
 
@@ -55,14 +71,15 @@ type ModelName =
 
 const model = ref<ModelName>(localStorage.getItem('model') as any ?? 'gpt-3.5-turbo-0125')
 
+const conversationThrottled = useThrottle(conversation, 1000, true, true)
 const tokenCost = computed(() => {
   try {
-    if (conversation.value.filter(d => d.role === 'assistant').length === 0) {
+    if (conversationThrottled.value.filter(d => d.role === 'assistant').length === 0) {
       return null
     }
     return new GPTTokens({
       model: model.value as any,
-      messages: conversation.value,
+      messages: conversationThrottled.value,
     })
   }
   catch (e) {
@@ -73,6 +90,8 @@ const tokenCost = computed(() => {
 watchEffect(() => {
   localStorage.setItem('model', model.value)
 })
+const { speed, trigger } = useSpeed(10000)
+
 const displayModelName = computed(() => {
   switch (model.value) {
     case 'gpt-4-turbo':
@@ -113,6 +132,8 @@ const displayModelName = computed(() => {
       return 'GPT-3.5 Turbo 0125'
     case 'gpt-3.5-turbo-16k-0613':
       return 'GPT-3.5 Turbo 16k 0613'
+    default:
+      return model.value
   }
 })
 
@@ -199,6 +220,9 @@ const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 })
 
+useBreakpoints({
+})
+
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const rows = ref(1)
 watch([input, textareaRef], () => {
@@ -266,7 +290,9 @@ async function onSubmit() {
     }
     for await (const chunk of stream) {
       if (chunk.choices[0].delta.content) {
+        trigger()
         conversation.value[conversation.value.length - 1].content += chunk.choices[0].delta.content
+        conversation.value = [...conversation.value]
       }
     }
   }
@@ -287,15 +313,22 @@ const totalToken = computed(() => {
 })
 
 const totalUSD = computed(() => {
-  let usd = 0
   if (streaming.value) {
-    usd = (prevUSD.value + (tokenCost.value?.usedUSD ?? 0))
+    return (prevUSD.value + (tokenCost.value?.usedUSD ?? 0))
   }
-  else {
-    usd = prevUSD.value
-  }
-  // usd /= 0.0065  To JPY
-  return usd.toFixed(5)
+  return prevUSD.value
+})
+
+const totalTokenTransition = useTransition(totalToken, {
+  duration: 1000,
+})
+
+const totalUSDTransition = useTransition(totalUSD, {
+  duration: 1000,
+})
+
+const extraInfo = computed(() => {
+  return `Used Tokens: ${totalTokenTransition.value.toFixed(0)} (${totalUSDTransition.value.toFixed(5)}$) Speed: ${speed.value.toFixed(1)}/s`
 })
 </script>
 
@@ -314,8 +347,12 @@ const totalUSD = computed(() => {
           v-model:model="model"
         />
         <div class="flex items-center gap-2">
-          <div class="text-sm">
-            Key
+          <div class="text-lg pr-2 flex">
+            <i class="i-tabler-key" />
+            <span
+              v-if="!isMobile"
+              class="text-sm pl-2"
+            >API Key</span>
           </div>
           <input
             v-model="apiKey"
@@ -351,7 +388,7 @@ const totalUSD = computed(() => {
           v-if="tokenCost"
           class="z-11 text-sm op-50"
         >
-          Used Tokens: {{ totalToken }} ({{ totalUSD }}$)
+          {{ extraInfo }}
         </div>
 
         <div class="relative z-10 max-w-830px w-full overflow-hidden leading-0">
@@ -383,13 +420,13 @@ const totalUSD = computed(() => {
             ref="textareaRef"
             v-model="input"
             type="text"
-            style="resize: none; scrollbar-width: none;"
+            style="resize: none; scrollbar-width: none; max-height: 100px; height: auto;"
             :rows="rows"
             :class="{
               'rounded-[3rem]': rows === 1,
               'rounded-[1rem]': rows !== 1,
             }"
-            class="z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
+            class="input-enter-animate z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
             placeholder="Input your question here"
             @keydown.stop.up="async (e) => {
               if (!(input === '')) return
@@ -442,8 +479,24 @@ const totalUSD = computed(() => {
             }"
           />
         </div>
-        <div class="py-1 text-sm color-[#c4c7c5]">
-          Gemini Style Web UI for Chat Services
+        <div class="py-1 text-sm color-[#c4c7c5] animate-delay-500 animate-fade-delay flex gap-2">
+          <span>
+            Gemini Style Web UI for Chat Services
+          </span>
+          <span>
+            By
+            <a
+              class="underline"
+              target="_blank"
+              href="https://github.com/Jannchie"
+            >Jannchie
+            </a>
+          </span>
+          <a
+            class="underline"
+            target="_blank"
+            href="https://github.com/Jannchie/gemini-chat-ui"
+          >Repository</a>
         </div>
       </div>
     </div>
@@ -474,5 +527,47 @@ body {
 }
 pre {
   outline: none;
+}
+
+.input-enter-animate {
+  animation: inputEnter 0.5s forwards;
+}
+.animate-fade-delay {
+  opacity: 0;
+  animation: fade 0.5s forwards 0.2s;
+}
+
+textarea::-moz-placeholder {
+  white-space: nowrap;
+}
+
+textarea::-webkit-placeholder {
+  white-space: nowrap;
+}
+
+textarea::placeholder {
+  white-space: nowrap;
+}
+
+@keyframes inputEnter {
+  from {
+    opacity: 0;
+    width: 50%;
+    translate: 25% 0%;
+  }
+  to {
+    opacity: 1;
+    width: 100%;
+    translate: 0% 0%;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
