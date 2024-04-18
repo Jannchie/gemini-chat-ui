@@ -152,24 +152,12 @@ debouncedWatch([message], () => {
         ref="streamMarkdownWrapperRef"
         class="prose"
       >
-        <!-- <component :is="() => result" /> -->
         <StreamMarkdown />
       </div>
-      <div v-else-if="role === 'user'">
-        <pre
-          class="grow whitespace-pre-wrap font-inherit"
-          v-text="props.content"
-        />
-      </div>
-      <!-- TODO:  Actions -->
-      <div class="w-10 shrink-0 op-0">
-        <button class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-neutral-5/10">
-          <i
-            v-if="role === 'user'"
-            class="i-tabler-chevron-down"
-          />
-        </button>
-      </div>
+      <UserChatMessage
+        v-else-if="role === 'user'"
+        :content="content"
+      />
     </div>
   </div>
 </template>

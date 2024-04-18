@@ -11,5 +11,6 @@ declare module 'vue' {
     ChatWrapper: typeof import('./components/ChatWrapper.vue')['default']
     HelloWorld: typeof import('./components/HelloWorld.vue')['default']
     SelectModelModal: typeof import('./components/SelectModelModal.vue')['default']
+    UserChatMessage: typeof import('./components/UserChatMessage.vue')['default']
   }
 }

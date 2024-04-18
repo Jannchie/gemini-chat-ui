@@ -214,6 +214,9 @@ const input = ref('')
 const inputHistory = useManualRefHistory(input)
 const showSelectModelModal = ref(false)
 const streaming = ref(false)
+
+provide('streaming', streaming)
+
 const prevUSD = ref(0)
 const prevToken = ref(0)
 const isMobile = computed(() => {
@@ -385,7 +388,7 @@ const extraInfo = computed(() => {
       <div
         v-else
         ref="scrollArea"
-        class="h-full overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-92px-72px)]"
+        class="h-full overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-116px-72px)]"
       >
         <TransitionGroup
           name="fade"
