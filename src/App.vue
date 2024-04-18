@@ -306,6 +306,10 @@ async function onSubmit() {
   }
 }
 
+onMounted(() => {
+  textareaRef.value?.focus()
+})
+
 const totalToken = computed(() => {
   if (streaming.value) {
     return prevToken.value + (tokenCost.value?.usedTokens ?? 0)
