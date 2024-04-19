@@ -7,12 +7,16 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    Chat: typeof import('./views/Chat.vue')['default']
     ChatItem: typeof import('./components/ChatItem.vue')['default']
+    ChatLayout: typeof import('./components/ChatLayout.vue')['default']
+    ChatMain: typeof import('./components/ChatMain.vue')['default']
     ChatMessage: typeof import('./components/ChatMessage.vue')['default']
-    ChatPage: typeof import('./components/ChatPage.vue')['default']
     ChatWrapper: typeof import('./components/ChatWrapper.vue')['default']
-    HelloWorld: typeof import('./components/HelloWorld.vue')['default']
+    copy: typeof import('./components/Chat copy.vue')['default']
     RecentChatWrapper: typeof import('./components/RecentChatWrapper.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     SelectModelModal: typeof import('./components/SelectModelModal.vue')['default']
     UserChatMessage: typeof import('./components/UserChatMessage.vue')['default']
   }

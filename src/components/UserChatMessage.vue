@@ -9,7 +9,7 @@ const collapsed = ref<boolean>(true)
 <template>
   <div class="flex-grow-1">
     <pre
-      class="grow whitespace-pre-wrap font-inherit overflow-hidden "
+      class="grow overflow-hidden whitespace-pre-wrap font-inherit"
       :class="collapsed ? 'line-clamp-3' : 'line-clamp-none'"
       v-text="content"
     />

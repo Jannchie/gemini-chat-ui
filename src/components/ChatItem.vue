@@ -34,23 +34,33 @@ function onDelete(e: MouseEvent) {
     currentChat.value = null
   }
 }
+const router = useRouter()
+function onClick() {
+  // currentChat = chatData
+  router.push({
+    name: 'chat',
+    params: {
+      id: props.chatData.id,
+    },
+  })
+}
 </script>
 
 <template>
   <button
     ref="buttonRef"
-    class="w-full text-sm  relative"
-    @click="currentChat = chatData"
+    class="relative w-full text-sm"
+    @click="onClick"
   >
     <div
       :class="{
         'bg-blue-5/30 text-blue-2 ': active,
         'hover:bg-neutral-8': !active,
       }"
-      class="flex gap-2 items-center rounded-full pl-2 pr-1 py-1 "
+      class="flex items-center gap-2 rounded-full py-1 pl-2 pr-1"
     >
       <i class="i-tabler-message m-2 flex-shrink-0" />
-      <span class="flex-grow text-left text-nowrap overflow-x-hidden text-ellipsis">
+      <span class="flex-grow overflow-x-hidden text-ellipsis text-left text-nowrap">
         {{ chatData.title }}
       </span>
       <button
@@ -61,7 +71,7 @@ function onDelete(e: MouseEvent) {
           'bg-neutral-9/25': showMenu && active,
           'bg-neutral-7/25': showMenu && !active,
         }"
-        class="p-2 rounded-full leading-0"
+        class="rounded-full p-2 leading-0"
         @click="onActionClick"
       >
         <i
@@ -72,15 +82,15 @@ function onDelete(e: MouseEvent) {
     </div>
     <div
       v-if="showMenu"
-      class="fixed z-9 inset-0"
+      class="fixed inset-0 z-9"
     />
     <menu
       v-if="showMenu"
 
       ref="menuRef"
-      class="absolute z-10 left-[calc(100%+1rem)] top-0"
+      class="absolute left-[calc(100%+1rem)] top-0 z-10"
     >
-      <div class="w-32 bg-neutral-8 rounded-md overflow-hidden">
+      <div class="w-32 overflow-hidden rounded-md bg-neutral-8">
         <button
           class="w-full px-4 py-2 hover:bg-neutral-7"
           @click="onDelete"

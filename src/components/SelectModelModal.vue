@@ -43,7 +43,9 @@ onClickOutside(modalRef, () => {
           ref="modalRef"
           class="w-96 rounded-3xl bg-neutral-9 p-4"
         >
-          <div class="font-lg pt-2 pb-4 px-4 font-bold op-75 pointer-events-none">Select a Model</div>
+          <div class="font-lg pointer-events-none px-4 pb-4 pt-2 font-bold op-75">
+            Select a Model
+          </div>
           <div
             v-for="m in models"
             :key="m"

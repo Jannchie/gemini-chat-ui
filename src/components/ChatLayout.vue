@@ -3,7 +3,8 @@ import OpenAI from 'openai'
 import { GPTTokens } from 'gpt-tokens'
 import type { Chat } from '../composables/useHelloWorld'
 
-const [chatHistory, setChatHistory] = useChatHistory()
+const router = useRouter()
+
 function useSpeed(interval: number = 1000) {
   const record = ref<[number, number][]>([])
   function trigger(num = 1) {
@@ -28,6 +29,7 @@ const conversation = shallowRef<Chat[]>([{
   content: ``,
 }])
 
+const [chatHistory, setChatHistory] = useChatHistory()
 const currentChat = useCurrentChat()
 watchEffect(() => {
   if (currentChat.value) {
@@ -129,10 +131,10 @@ const displayModelName = computed(() => {
   }
 })
 
-const defaultApiKey = sessionStorage.getItem('apiKey') ?? import.meta.env.VITE_DEFAULT_API_KEY
+const defaultApiKey = localStorage.getItem('apiKey') ?? import.meta.env.VITE_DEFAULT_API_KEY
 const apiKey = ref(defaultApiKey)
 watchEffect(() => {
-  sessionStorage.setItem('apiKey', apiKey.value)
+  localStorage.setItem('apiKey', apiKey.value)
 })
 const openai = computed(() => new OpenAI({
   apiKey: apiKey.value,
@@ -333,12 +335,18 @@ async function onSubmit() {
       const id = generateId()
       const aiMessage = conversation.value.filter(d => d.role === 'assistant').map(d => d.content).join('\n')
       const summary = await generateSummary(aiMessage)
-      currentChat.value = {
+      const newChat = {
         id,
         title: summary ?? 'New Chat',
         conversation: unref(conversation.value),
       }
-      setChatHistory([currentChat.value, ...chatHistory.value])
+      setChatHistory([newChat, ...chatHistory.value])
+      router.push({
+        name: 'chat',
+        params: {
+          id,
+        },
+      })
     }
   }
 }
@@ -374,41 +382,37 @@ const extraInfo = computed(() => {
 })
 
 function onNewChatClick() {
-  conversation.value = [{
-    role: 'system',
-    content: '',
-  }]
-  currentChat.value = null
+  router.push({
+    name: 'chat-home',
+  })
 }
 </script>
 
 <template>
-  <div class="h-100dvh w-100dvw color-[#e3e3e3] flex overflow-hidden">
+  <div class="h-100dvh w-100dvw flex overflow-hidden color-[#e3e3e3]">
     <div
-      class="bg-neutral-9 w-16 px-3 w-284px flex-shrink-0"
+      class="w-16 w-284px flex-shrink-0 bg-neutral-9 px-3"
     >
       <div
         class="mt-104px pb-4"
       >
         <button
           :disabled="currentChat === null"
-          class="disabled:op-50 disabled:pointer-events-none flex gap-4 items-center bg-neutral-8 hover:bg-neutral-7 px-4 py-3 rounded-full leading-0"
+          class="flex items-center gap-4 rounded-full bg-neutral-8 px-4 py-3 leading-0 disabled:pointer-events-none hover:bg-neutral-7 disabled:op-50"
           @click="onNewChatClick"
         >
-          <i class="i-tabler-plus w-5 h-5" />
+          <i class="i-tabler-plus h-5 w-5" />
           <span class="text-sm">
             New Chat
           </span>
         </button>
       </div>
-      <div class="my-2 text-sm pl-4">
+      <div class="my-2 pl-4 text-sm">
         Recent Chat
       </div>
-      <Suspense>
-        <RecentChatWrapper />
-      </Suspense>
+      <RecentChatWrapper />
     </div>
-    <div class="h-100vh flex flex-col flex-grow-1">
+    <div class="h-100vh flex flex-grow-1 flex-col">
       <header class="h-72px flex items-center justify-between gap-4 px-4 text-lg">
         <button
           class="cursor-pointer rounded-full px-4 py-2 text-sm transition-background-color hover:bg-neutral-8"
@@ -421,11 +425,11 @@ function onNewChatClick() {
           v-model:model="model"
         />
         <div class="flex items-center gap-2">
-          <div class="text-lg pr-2 flex">
+          <div class="flex pr-2 text-lg">
             <i class="i-tabler-key" />
             <span
               v-if="!isMobile"
-              class="text-sm pl-2"
+              class="pl-2 text-sm"
             >API Key</span>
           </div>
           <input
@@ -438,16 +442,30 @@ function onNewChatClick() {
       </header>
       <div
         v-if="conversation.length <= 1"
-        class="h-full overflow-x-hidden overflow-y-auto max-w-830px w-full m-auto text-3.5rem leading-4rem font-medium"
+        class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto text-3.5rem font-medium leading-4rem"
       >
-        <div class="mt-8 mb-12">
+        <div class="mb-12 mt-8">
           <div class="gradient-text">
             Hi there!
           </div>
-          <div class="text-3rem animate-fade-delay">
+          <div class="animate-fade-delay text-3rem">
             <div class="op-25">
               What can I help you today?
             </div>
+          </div>
+        </div>
+        <div class="mb-10 mt-20 flex gap-4">
+          <div class="animate-fade-delay">
+            <button
+              class="h-200px w-200px flex flex-col justify-between rounded-xl bg-neutral-8 p-5 leading-0 hover:bg-neutral-7"
+            >
+              <div class="text-base">
+                Translate
+              </div>
+              <div class="h-10 w-10 flex items-center self-end justify-center rounded-full bg-neutral-9">
+                <i class="i-tabler-language-hiragana bottom-0 h-6 w-6" />
+              </div>
+            </button>
           </div>
         </div>
       </div>
@@ -456,7 +474,7 @@ function onNewChatClick() {
         ref="scrollArea"
         class="h-full overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
       >
-        <ChatWrapper
+        <template
           v-for="g, i in groupedConversation"
           :key="i"
         >
@@ -467,7 +485,7 @@ function onNewChatClick() {
             :content="c.content"
             :loading="streaming && groupedConversation.length - 1 === i"
           />
-        </ChatWrapper>
+        </template>
       </div>
       <div class="input-section relative flex flex-col items-center gap-1 px-4">
         <div
@@ -565,7 +583,7 @@ function onNewChatClick() {
             }"
           />
         </div>
-        <div class="pt-1 pb-3 text-xs color-[#c4c7c5] animate-delay-500 animate-fade-delay flex gap-2">
+        <div class="animate-fade-delay flex animate-delay-500 gap-2 pb-3 pt-1 text-xs color-[#c4c7c5]">
           <span>
             Gemini Style Web UI for Chat Services
           </span>

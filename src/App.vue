@@ -1,9 +1,8 @@
 <script setup lang="ts">
-provideChatHistory()
 </script>
 
 <template>
-  <ChatPage />
+  <RouterView />
 </template>
 
 <style>

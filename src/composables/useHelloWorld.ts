@@ -1,18 +1,7 @@
 import localforage from 'localforage'
 import type { ShallowRef } from 'vue'
 
-export function provideChatHistory() {
-  const chatHistory = shallowRef<ChatData[]>([])
-  const currentChat = shallowRef<ChatData | null>(null)
-  onMounted(async () => {
-    const chatHistoryInit = await localforage.getItem<ChatData[]>('chatHistory')
-    if (chatHistoryInit) {
-      chatHistory.value = chatHistoryInit
-    }
-  })
-  provide('chatHistory', chatHistory)
-  provide('currentChat', currentChat)
-}
+
 
 export function useChatHistory() {
   const chatHistory = inject<ShallowRef<ChatData[]>>('chatHistory', shallowRef([]))
