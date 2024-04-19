@@ -63,30 +63,13 @@ function spliteContent(msg: string) {
 
 const content = computed(() => {
   const msg = message.value
-
-  // TODO: 代码块没有闭合时，移除最后一个 '`' 以及之后的内容
-  // const lastLine = message.value.trim().split(/\n/).pop() ?? ''
-  // if (lastLine.startsWith('`') && (lastLine === '```' || lastLine === '``' || lastLine === '`')) {
-  //   return
-  // }
-  // let flag = 0
-  // // 如果 '`' 的个数为奇数，且连续三个 '```' 的个数为偶数，则说明代码块没有闭合，移除最后一个 '`' 以及之后的内容
-  // if ((message.value.match(/`/g) || []).length % 2 === 1 && (message.value.match(/```/g) || []).length % 2 === 0) {
-  //   // 如果存在连续三个 '```'，则 flag = 3
-  //   if (message.value.match(/```/g)?.length === 3) {
-  //     flag = 3
-  //   }
-  //   else {
-  //     flag = 1
-  //   }
-
-  //   const index = message.value.lastIndexOf('`')
-  //   msg = message.value.slice(0, index)
-  // }
-  // msg += '`'.repeat(flag)
-  const content = spliteContent(msg)
-
-  return content
+  if (props.loading) {
+    const content = spliteContent(msg)
+    return content
+  }
+  else {
+    return msg
+  }
 })
 
 const result = computedWithControl([

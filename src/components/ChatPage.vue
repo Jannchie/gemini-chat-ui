@@ -257,6 +257,9 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
   textarea.style.height = ''
   return numberOfLines
 }
+watch(currentChat, () => {
+  textareaRef.value?.focus()
+})
 async function onSubmit() {
   if (input.value.trim() === '' || streaming.value) {
     return
