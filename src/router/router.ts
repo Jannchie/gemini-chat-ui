@@ -20,6 +20,11 @@ const routes = [
       },
     ],
   },
+  {
+    name: 'translate',
+    path: '/translate',
+    component: () => import('../views/Translate.vue'),
+  },
 ]
 
 export const router = createRouter({

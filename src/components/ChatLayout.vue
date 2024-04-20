@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import OpenAI from 'openai'
 import { GPTTokens } from 'gpt-tokens'
-import type { Chat } from '../composables/useHelloWorld'
+import type { ChatMessage } from '../composables/useHelloWorld'
+import { generateId, isMobile } from '../utils'
 
+const model = useModel()
 const router = useRouter()
 
 function useSpeed(interval: number = 1000) {
@@ -24,7 +26,7 @@ function useSpeed(interval: number = 1000) {
   }
 }
 
-const conversation = shallowRef<Chat[]>([{
+const conversation = shallowRef<ChatMessage[]>([{
   role: 'system',
   content: ``,
 }])
@@ -42,28 +44,6 @@ watchEffect(() => {
     }]
   }
 })
-type ModelName =
-  | 'gpt-4-turbo'
-  | 'gpt-4-turbo-2024-04-09'
-  | 'gpt-4-0125-preview'
-  | 'gpt-4-turbo-preview'
-  | 'gpt-4-1106-preview'
-  | 'gpt-4-vision-preview'
-  | 'gpt-4'
-  | 'gpt-4-0314'
-  | 'gpt-4-0613'
-  | 'gpt-4-32k'
-  | 'gpt-4-32k-0314'
-  | 'gpt-4-32k-0613'
-  | 'gpt-3.5-turbo'
-  | 'gpt-3.5-turbo-16k'
-  | 'gpt-3.5-turbo-0301'
-  | 'gpt-3.5-turbo-0613'
-  | 'gpt-3.5-turbo-1106'
-  | 'gpt-3.5-turbo-0125'
-  | 'gpt-3.5-turbo-16k-0613'
-
-const model = ref<ModelName>(localStorage.getItem('model') as any ?? 'gpt-3.5-turbo-0125')
 
 const conversationThrottled = useThrottle(conversation, 1000, true, true)
 const tokenCost = computed(() => {
@@ -85,54 +65,8 @@ watchEffect(() => {
   localStorage.setItem('model', model.value)
 })
 const { speed, trigger } = useSpeed(10000)
+const apiKey = useApiKey()
 
-const displayModelName = computed(() => {
-  switch (model.value) {
-    case 'gpt-4-turbo':
-      return 'GPT-4 Turbo'
-    case 'gpt-4-turbo-2024-04-09':
-      return 'GPT-4 Turbo 2024-04-09'
-    case 'gpt-4-0125-preview':
-      return 'GPT-4 0125 Preview'
-    case 'gpt-4-turbo-preview':
-      return 'GPT-4 Turbo Preview'
-    case 'gpt-4-1106-preview':
-      return 'GPT-4 1106 Preview'
-    case 'gpt-4-vision-preview':
-      return 'GPT-4 Vision Preview'
-    case 'gpt-4':
-      return 'GPT-4'
-    case 'gpt-4-0314':
-      return 'GPT-4 0314'
-    case 'gpt-4-0613':
-      return 'GPT-4 0613'
-    case 'gpt-4-32k':
-      return 'GPT-4 32k'
-    case 'gpt-4-32k-0314':
-      return 'GPT-4 32k 0314'
-    case 'gpt-4-32k-0613':
-      return 'GPT-4 32k 0613'
-    case 'gpt-3.5-turbo':
-      return 'GPT-3.5 Turbo'
-    case 'gpt-3.5-turbo-16k':
-      return 'GPT-3.5 Turbo 16k'
-    case 'gpt-3.5-turbo-0301':
-      return 'GPT-3.5 Turbo 0301'
-    case 'gpt-3.5-turbo-0613':
-      return 'GPT-3.5 Turbo 0613'
-    case 'gpt-3.5-turbo-1106':
-      return 'GPT-3.5 Turbo 1106'
-    case 'gpt-3.5-turbo-0125':
-      return 'GPT-3.5 Turbo 0125'
-    case 'gpt-3.5-turbo-16k-0613':
-      return 'GPT-3.5 Turbo 16k 0613'
-    default:
-      return model.value
-  }
-})
-
-const defaultApiKey = localStorage.getItem('apiKey') ?? import.meta.env.VITE_DEFAULT_API_KEY
-const apiKey = ref(defaultApiKey)
 watchEffect(() => {
   localStorage.setItem('apiKey', apiKey.value)
 })
@@ -161,8 +95,8 @@ async function generateSummary(text: string) {
 
 const groupedConversation = computed(() => {
   // 处理 conversation，每次轮到 ai 说话后，添加新的组，否则添加到上一组
-  const result: Chat[][] = []
-  let group: Chat[] = []
+  const result: ChatMessage[][] = []
+  let group: ChatMessage[] = []
   for (const c of conversation.value) {
     if (c.role === 'system') {
       continue
@@ -212,28 +146,14 @@ function scrollToBottomSmoothly(element: { scrollTop: number, scrollHeight: numb
 }
 
 const scrollArea = ref<HTMLElement | null>(null)
-// const groupCount = computed(() => groupedConversation.value.length)
-// watch(groupCount, () => {
-//   nextTick(() => {
-//     const el = scrollArea.value
-//     if (el) {
-//       scrollToBottomSmoothly(el, 1000)
-//     }
-//   })
-// })
-
 const input = ref('')
 const inputHistory = useManualRefHistory(input)
-const showSelectModelModal = ref(false)
 const streaming = ref(false)
 
 provide('streaming', streaming)
 
 const prevUSD = ref(0)
 const prevToken = ref(0)
-const isMobile = computed(() => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-})
 
 useBreakpoints({
 })
@@ -380,66 +300,13 @@ const totalUSDTransition = useTransition(totalUSD, {
 const extraInfo = computed(() => {
   return `Used Tokens: ${totalTokenTransition.value.toFixed(0)} (${totalUSDTransition.value.toFixed(5)}$) Speed: ${speed.value.toFixed(1)}/s`
 })
-
-function onNewChatClick() {
-  router.push({
-    name: 'chat-home',
-  })
-}
 </script>
 
 <template>
-  <div class="h-100dvh w-100dvw flex overflow-hidden color-[#e3e3e3]">
-    <div
-      class="w-16 w-284px flex-shrink-0 bg-neutral-9 px-3"
-    >
-      <div
-        class="mt-104px pb-4"
-      >
-        <button
-          :disabled="currentChat === null"
-          class="flex items-center gap-4 rounded-full bg-neutral-8 px-4 py-3 leading-0 disabled:pointer-events-none hover:bg-neutral-7 disabled:op-50"
-          @click="onNewChatClick"
-        >
-          <i class="i-tabler-plus h-5 w-5" />
-          <span class="text-sm">
-            New Chat
-          </span>
-        </button>
-      </div>
-      <div class="my-2 pl-4 text-sm">
-        Recent Chat
-      </div>
-      <RecentChatWrapper />
-    </div>
-    <div class="h-100vh flex flex-grow-1 flex-col">
-      <header class="h-72px flex items-center justify-between gap-4 px-4 text-lg">
-        <button
-          class="cursor-pointer rounded-full px-4 py-2 text-sm transition-background-color hover:bg-neutral-8"
-          @click="showSelectModelModal = true"
-        >
-          {{ displayModelName }}
-        </button>
-        <SelectModelModal
-          v-model="showSelectModelModal"
-          v-model:model="model"
-        />
-        <div class="flex items-center gap-2">
-          <div class="flex pr-2 text-lg">
-            <i class="i-tabler-key" />
-            <span
-              v-if="!isMobile"
-              class="pl-2 text-sm"
-            >API Key</span>
-          </div>
-          <input
-            v-model="apiKey"
-            placeholder="OpenAI API Key"
-            class="w-30 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-1 outline-none transition-all focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
-            type="password"
-          >
-        </div>
-      </header>
+  <BaseContainer>
+    <ChatAside />
+    <MainContainer>
+      <ChatHeader />
       <div
         v-if="conversation.length <= 1"
         class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto text-3.5rem font-medium leading-4rem"
@@ -458,6 +325,7 @@ function onNewChatClick() {
           <div class="animate-fade-delay">
             <button
               class="h-200px w-200px flex flex-col justify-between rounded-xl bg-neutral-8 p-5 leading-0 hover:bg-neutral-7"
+              @click="router.push({ name: 'translate' })"
             >
               <div class="text-base">
                 Translate
@@ -603,98 +471,6 @@ function onNewChatClick() {
           >Repository</a>
         </div>
       </div>
-    </div>
-  </div>
+    </MainContainer>
+  </BaseContainer>
 </template>
-
-<style>
-:root {
-  font-family: "Noto Sans SC", sans-serif;
-  font-optical-sizing: auto;
-  font-style: normal;
-  color-scheme: dark light;
-}
-body {
-  background-color: #131314;
-}
-
-.input-section:before {
-    content: "";
-    position: absolute;
-    top: -50px;
-    width: 100%;
-    height: 100px;
-    pointer-events: none;
-    background: -webkit-gradient(linear,left top,left bottom,from(#13131400),color-stop(60%,#131314));
-    background: -webkit-linear-gradient(top,#13131400,#131314 60%);
-    background: linear-gradient(180deg,#13131400,#131314 60%);
-}
-pre {
-  outline: none;
-}
-
-.input-enter-animate {
-  animation: inputEnter 0.5s forwards;
-}
-.animate-fade-delay {
-  opacity: 0;
-  animation: fade 0.5s forwards 0.2s;
-}
-
-textarea::-moz-placeholder {
-  white-space: nowrap;
-}
-
-textarea::-webkit-placeholder {
-  white-space: nowrap;
-}
-
-textarea::placeholder {
-  white-space: nowrap;
-}
-
-.gradient-text {
-  --gradient-color-1: #4285f4;
-  --gradient-color-2: #9b72cb;
-  --gradient-color-3: #d96570;
-  background: linear-gradient(74deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), var(--gradient-color-3), var(--gradient-color-2), var(--gradient-color-1),  var(--gradient-color-2), var(--gradient-color-3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
-  background-size: 400% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
-  animation: gradient-animation 2s forwards;
-}
-@keyframes gradient-animation {
-  0% {
-    background-position: 100% 0%;
-    background-size: 800% 100%;
-  }
-  100% {
-    background-position: 0% 0%;
-    background-size: 400% 100%;
-  }
-}
-
-@keyframes inputEnter {
-  from {
-    opacity: 0;
-    width: 50%;
-    translate: 25% 0%;
-  }
-  to {
-    opacity: 1;
-    width: 100%;
-    translate: 0% 0%;
-  }
-}
-
-@keyframes fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-</style>

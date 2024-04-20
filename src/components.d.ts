@@ -7,17 +7,23 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AsideContainer: typeof import('./components/AsideContainer.vue')['default']
+    BaseContainer: typeof import('./components/BaseContainer.vue')['default']
     Chat: typeof import('./views/Chat.vue')['default']
+    ChatAside: typeof import('./components/ChatAside.vue')['default']
+    ChatHeader: typeof import('./components/ChatHeader.vue')['default']
     ChatItem: typeof import('./components/ChatItem.vue')['default']
     ChatLayout: typeof import('./components/ChatLayout.vue')['default']
-    ChatMain: typeof import('./components/ChatMain.vue')['default']
     ChatMessage: typeof import('./components/ChatMessage.vue')['default']
     ChatWrapper: typeof import('./components/ChatWrapper.vue')['default']
-    copy: typeof import('./components/Chat copy.vue')['default']
+    copy: typeof import('./views/Chat copy.vue')['default']
+    MainContainer: typeof import('./components/MainContainer.vue')['default']
     RecentChatWrapper: typeof import('./components/RecentChatWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectModelModal: typeof import('./components/SelectModelModal.vue')['default']
+    StreamContent: typeof import('./components/StreamContent.vue')['default']
+    Translate: typeof import('./views/Translate.vue')['default']
     UserChatMessage: typeof import('./components/UserChatMessage.vue')['default']
   }
 }

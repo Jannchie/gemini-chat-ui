@@ -1,101 +1,9 @@
 <script setup lang="ts">
-import markdownit from 'markdown-it'
-import Shikiji from 'markdown-it-shikiji'
-import type { VNode } from 'vue'
-import VNodePlugin from '../utils/render'
-
 const props = defineProps<{
   role: string
   content: string
   loading: boolean
 }>()
-const md = markdownit({
-  linkify: true,
-  typographer: true,
-  breaks: true,
-  html: true,
-} as any)
-
-md.use(VNodePlugin)
-onMounted(async () => {
-  md.use(await Shikiji({
-    themes: {
-      light: 'github-light',
-      dark: 'github-dark',
-    },
-    defaultColor: 'dark',
-  }))
-})
-
-const message = computed(() => props.content)
-const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
-
-function editResult(childrenRaw: VNode[]): VNode[] {
-  const children = childrenRaw.flat(20)
-  for (let i = 0; i < children.length; i++) {
-    const child = children[i]
-    // 如果包含文本节点
-    if (typeof child.children === 'string') {
-      child.props = {
-        ...child.props,
-        class: 'fade-in',
-      }
-    }
-    if (child.children && Array.isArray(child.children) && child.children.length > 0) {
-      editResult(child.children as VNode[])
-    }
-  }
-  return children
-}
-function spliteContent(msg: string) {
-  const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
-  // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
-  if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
-    sentences.pop() // 移除最后一个句子
-  }
-  // 如果最后一个句子是列表项，则移除最后一个句子
-  if (/^[\d]+\./.test(sentences[sentences.length - 1])) {
-    sentences.pop() // 移除最后一个句子
-  }
-  const content = sentences.join('')
-  return content
-}
-
-const content = computed(() => {
-  const msg = message.value
-  if (props.loading) {
-    const content = spliteContent(msg)
-    return content
-  }
-  else {
-    return msg
-  }
-})
-
-const result = computedWithControl([
-  content,
-], () => {
-  const r = md.render(content.value ?? '', {
-    sanitize: props.role === 'assistant',
-  }) as unknown as VNode[]
-  return editResult(r)
-})
-
-const StreamMarkdown = defineComponent({
-  setup() {
-    return () => {
-      return result.value
-    }
-  },
-})
-
-debouncedWatch([message], () => {
-  if (props.role === 'assistant') {
-    result.trigger()
-  }
-}, {
-  debounce: 100,
-})
 </script>
 
 <template>
@@ -129,14 +37,11 @@ debouncedWatch([message], () => {
           />
         </svg>
       </div>
-      <div
+      <StreamContent
         v-if="role === 'assistant'"
-        key="prose"
-        ref="streamMarkdownWrapperRef"
-        class="prose"
-      >
-        <StreamMarkdown />
-      </div>
+        :content="content"
+        :loading="loading"
+      />
       <UserChatMessage
         v-else-if="role === 'user'"
         :content="content"

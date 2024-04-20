@@ -1,4 +1,29 @@
 <script setup lang="ts">
+type ModelName =
+  | 'gpt-4-turbo'
+  | 'gpt-4-turbo-2024-04-09'
+  | 'gpt-4-0125-preview'
+  | 'gpt-4-turbo-preview'
+  | 'gpt-4-1106-preview'
+  | 'gpt-4-vision-preview'
+  | 'gpt-4'
+  | 'gpt-4-0314'
+  | 'gpt-4-0613'
+  | 'gpt-4-32k'
+  | 'gpt-4-32k-0314'
+  | 'gpt-4-32k-0613'
+  | 'gpt-3.5-turbo'
+  | 'gpt-3.5-turbo-16k'
+  | 'gpt-3.5-turbo-0301'
+  | 'gpt-3.5-turbo-0613'
+  | 'gpt-3.5-turbo-1106'
+  | 'gpt-3.5-turbo-0125'
+  | 'gpt-3.5-turbo-16k-0613'
+
+const model = useLocalStorage<ModelName>('model', 'gpt-3.5-turbo-0125')
+const apiKey = useLocalStorage('apiKey', import.meta.env.VITE_DEFAULT_API_KEY)
+provide('apiKey', apiKey)
+provide('model', model)
 </script>
 
 <template>
@@ -8,5 +33,97 @@
 <style>
 body {
   overflow: hidden;
+}
+</style>
+
+<style>
+:root {
+  font-family: "Noto Sans SC", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  color-scheme: dark light;
+}
+body {
+  background-color: #131314;
+}
+
+.input-section:before {
+    content: "";
+    position: absolute;
+    top: -50px;
+    width: 100%;
+    height: 100px;
+    pointer-events: none;
+    background: -webkit-gradient(linear,left top,left bottom,from(#13131400),color-stop(60%,#131314));
+    background: -webkit-linear-gradient(top,#13131400,#131314 60%);
+    background: linear-gradient(180deg,#13131400,#131314 60%);
+}
+pre {
+  outline: none;
+}
+
+.input-enter-animate {
+  animation: inputEnter 0.5s forwards;
+}
+.animate-fade-delay {
+  opacity: 0;
+  animation: fade 0.5s forwards 0.2s;
+}
+
+textarea::-moz-placeholder {
+  white-space: nowrap;
+}
+
+textarea::-webkit-placeholder {
+  white-space: nowrap;
+}
+
+textarea::placeholder {
+  white-space: nowrap;
+}
+
+.gradient-text {
+  --gradient-color-1: #4285f4;
+  --gradient-color-2: #9b72cb;
+  --gradient-color-3: #d96570;
+  background: linear-gradient(74deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), var(--gradient-color-3), var(--gradient-color-2), var(--gradient-color-1),  var(--gradient-color-2), var(--gradient-color-3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  animation: gradient-animation 2s forwards;
+}
+@keyframes gradient-animation {
+  0% {
+    background-position: 100% 0%;
+    background-size: 800% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+    background-size: 400% 100%;
+  }
+}
+
+@keyframes inputEnter {
+  from {
+    opacity: 0;
+    width: 50%;
+    translate: 25% 0%;
+  }
+  to {
+    opacity: 1;
+    width: 100%;
+    translate: 0% 0%;
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 </style>
