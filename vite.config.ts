@@ -26,6 +26,22 @@ export default defineConfig({
       ],
       dts: './src/auto-import.d.ts',
     }),
-    VitePWA({ registerType: 'autoUpdate' }),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      manifest: {
+        name: 'Gemini Style Chat',
+        short_name: 'Gemini Chat',
+        description: 'A chat application built with Gemini UI Style',
+        theme_color: '#131314',
+        icons: [
+          {
+            src: 'favicon.png',
+            sizes: '256x256',
+            type: 'image/png',
+          },
+        ],
+      },
+    }),
   ],
 })
