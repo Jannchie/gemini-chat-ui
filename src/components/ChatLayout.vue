@@ -150,6 +150,19 @@ const input = ref('')
 const inputHistory = useManualRefHistory(input)
 const streaming = ref(false)
 
+// watchEffect(() => {
+//   conversation.value = [{
+//     role: 'system',
+//     content: ``,
+//   }, {
+//     role: 'user',
+//     content: `123`,
+//   }, {
+//     role: 'assistant',
+//     content: input.value,
+//   }]
+// })
+
 provide('streaming', streaming)
 
 const prevUSD = ref(0)

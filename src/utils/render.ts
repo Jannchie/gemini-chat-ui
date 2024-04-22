@@ -260,10 +260,10 @@ function renderToken(this: Renderer, tokens: Token[], idx: number): any {
     return null
   }
 
-  // // Tight list paragraphs
-  // if (token.hidden) {
-  //   return createVNode(Fragment, {}, [])
-  // }
+  // Tight list paragraphs
+  if (token.hidden) {
+    return createVNode(Fragment, {}, [])
+  }
 
   if (token.tag === '--') {
     return createVNode(Comment)
