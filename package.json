@@ -1,5 +1,5 @@
 {
-  "name": "maxminvue",
+  "name": "chat-gemini-ui",
   "type": "module",
   "version": "0.0.1",
   "private": true,
@@ -28,6 +28,7 @@
     "@unocss/preset-icons": "^0.59.4",
     "@unocss/preset-typography": "^0.59.4",
     "@unocss/reset": "^0.59.4",
+    "@vite-pwa/assets-generator": "^0.2.4",
     "@vitejs/plugin-vue": "^5.0.4",
     "eslint": "^8.57.0",
     "markdown-it": "^14.1.0",
