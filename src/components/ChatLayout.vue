@@ -322,9 +322,9 @@ const extraInfo = computed(() => {
       <ChatHeader />
       <div
         v-if="conversation.length <= 1"
-        class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto text-3.5rem font-medium leading-4rem"
+        class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto px-2 text-3.5rem font-medium leading-4rem"
       >
-        <div class="mb-12 mt-8">
+        <div class="sm:mb-12 sm:mt-8">
           <div class="gradient-text">
             Hi there!
           </div>

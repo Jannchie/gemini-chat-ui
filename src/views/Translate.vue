@@ -77,29 +77,31 @@ watchEffect(async () => {
         <div
           class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto font-medium leading-4rem"
         >
-          <div class="mb-12 mt-8 text-3.5rem">
-            <div class="gradient-text">
-              Translate
+          <div class="px-2">
+            <div class="mb-12 mt-8 text-3.5rem">
+              <div class="gradient-text">
+                Translate
+              </div>
             </div>
-          </div>
-          <div class="animate-fade-delay">
-            <div class="mb-4 flex items-center gap-4">
-              <button class="flex">
-                <div class="rounded-2xl bg-neutral-8 px-4 py-3 text-xl">
-                  Chinese
-                </div>
-              </button>
-            </div>
-            <textarea
-              v-model="text"
-              style="resize: none; scrollbar-width: none; min-height: 200px; height: auto;"
-              class="z-10 w-full flex-grow-0 rounded-2xl bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
-            />
-            <div class="p-6">
-              <StreamContent
-                :content="translateContent"
-                :loading="!translateContent"
+            <div class="animate-fade-delay">
+              <div class="mb-4 flex items-center gap-4">
+                <button class="flex">
+                  <div class="rounded-2xl bg-neutral-8 px-4 py-3 text-xl">
+                    Chinese
+                  </div>
+                </button>
+              </div>
+              <textarea
+                v-model="text"
+                style="resize: none; scrollbar-width: none; min-height: 200px; height: auto;"
+                class="z-10 w-full flex-grow-0 rounded-2xl bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
               />
+              <div class="p-6">
+                <StreamContent
+                  :content="translateContent"
+                  :loading="!translateContent"
+                />
+              </div>
             </div>
           </div>
         </div>

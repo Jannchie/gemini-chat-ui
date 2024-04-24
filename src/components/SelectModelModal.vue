@@ -37,7 +37,7 @@ onClickOutside(modalRef, () => {
     <Transition name="modal-fade">
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-[#00000080]"
+        class="fixed inset-4 z-50 flex items-center justify-center bg-[#00000080]"
       >
         <div
           ref="modalRef"
@@ -46,13 +46,15 @@ onClickOutside(modalRef, () => {
           <div class="font-lg pointer-events-none px-4 pb-4 pt-2 font-bold op-75">
             Select a Model
           </div>
-          <div
-            v-for="m in models"
-            :key="m"
-            class="cursor-pointer rounded-full px-4 py-2 text-sm transition-background-color hover:bg-neutral-8"
-            @click="model = m; show = false"
-          >
-            {{ m }}
+          <div class="max-h-80vh overflow-x-scroll">
+            <div
+              v-for="m in models"
+              :key="m"
+              class="cursor-pointer rounded-full px-4 py-2 text-sm transition-background-color hover:bg-neutral-8"
+              @click="model = m; show = false"
+            >
+              {{ m }}
+            </div>
           </div>
         </div>
       </div>
