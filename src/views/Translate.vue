@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import type { ChatMessage } from '../composables/useHelloWorld'
 import StreamContent from '../components/StreamContent.vue'
 
@@ -20,11 +20,7 @@ const conversation = computed<ChatMessage[]>(() => [{
   content: `translate this to ${targetLang.value}:\n ${textDebounced.value}`,
 }])
 
-const apiKey = useApiKey()
-const openai = computed(() => new OpenAI({
-  apiKey: apiKey.value,
-  dangerouslyAllowBrowser: true,
-}))
+const client = useClient()
 const translateContent = ref('')
 const model = useModel()
 const loading = ref(false)
@@ -34,9 +30,8 @@ watchEffect(async () => {
       return
     }
     loading.value = true
-    const stream = await openai.value.chat.completions.create({
+    const stream = await (client.value.chat.completions as OpenAI.Chat.Completions).create({
       model: model.value,
-      // 你只需要输出总结文本，而不需要附加其他信息。不需要标点
       stream: true,
       messages: conversation.value,
     })

@@ -1,23 +1,29 @@
 <script setup lang="ts">
+import { getModelName } from '../utils'
+
 const models = [
+  'llama3-8b-8192',
+  'llama3-70b-8192',
+  'mixtral-8x7b-32768',
+  'gemma-7b-it',
   'gpt-4-turbo',
-  'gpt-4-turbo-2024-04-09',
-  'gpt-4-0125-preview',
-  'gpt-4-turbo-preview',
-  'gpt-4-1106-preview',
-  'gpt-4-vision-preview',
-  'gpt-4',
-  'gpt-4-0314',
-  'gpt-4-0613',
-  'gpt-4-32k',
-  'gpt-4-32k-0314',
-  'gpt-4-32k-0613',
+  // 'gpt-4-turbo-2024-04-09',
+  // 'gpt-4-0125-preview',
+  // 'gpt-4-turbo-preview',
+  // 'gpt-4-1106-preview',
+  // 'gpt-4-vision-preview',
+  // 'gpt-4',
+  // 'gpt-4-0314',
+  // 'gpt-4-0613',
+  // 'gpt-4-32k',
+  // 'gpt-4-32k-0314',
+  // 'gpt-4-32k-0613',
   'gpt-3.5-turbo',
-  'gpt-3.5-turbo-16k',
-  'gpt-3.5-turbo-0301',
-  'gpt-3.5-turbo-0613',
-  'gpt-3.5-turbo-1106',
-  'gpt-3.5-turbo-0125',
+  // 'gpt-3.5-turbo-16k',
+  // 'gpt-3.5-turbo-0301',
+  // 'gpt-3.5-turbo-0613',
+  // 'gpt-3.5-turbo-1106',
+  // 'gpt-3.5-turbo-0125',
   'gpt-3.5-turbo-16k-0613',
 ]
 const model = defineModel<string>('model', {
@@ -46,14 +52,14 @@ onClickOutside(modalRef, () => {
           <div class="font-lg pointer-events-none px-4 pb-4 pt-2 font-bold op-75">
             Select a Model
           </div>
-          <div class="max-h-80vh overflow-x-scroll">
+          <div class="max-h-80vh overflow-auto">
             <div
               v-for="m in models"
               :key="m"
               class="cursor-pointer rounded-full px-4 py-2 text-sm transition-background-color hover:bg-neutral-8"
               @click="model = m; show = false"
             >
-              {{ m }}
+              {{ getModelName(m) }}
             </div>
           </div>
         </div>

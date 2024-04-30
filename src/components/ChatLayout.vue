@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import OpenAI from 'openai'
 import { GPTTokens } from 'gpt-tokens'
+import Groq from 'groq-sdk'
 import type { ChatMessage } from '../composables/useHelloWorld'
-import { generateId, isMobile } from '../utils'
+import { generateId, isGroqModel, isMobile } from '../utils'
 
 const model = useModel()
 const router = useRouter()
@@ -61,24 +62,12 @@ const tokenCost = computed(() => {
   }
 })
 
-watchEffect(() => {
-  localStorage.setItem('model', model.value)
-})
 const { speed, trigger } = useSpeed(10000)
-const apiKey = useApiKey()
-
-watchEffect(() => {
-  localStorage.setItem('apiKey', apiKey.value)
-})
-const openai = computed(() => new OpenAI({
-  apiKey: apiKey.value,
-  dangerouslyAllowBrowser: true,
-}))
+const aiClient = useClient()
 
 async function generateSummary(text: string) {
-  const resp = await openai.value.chat.completions.create({
+  const resp = await (aiClient.value.chat.completions as OpenAI.Chat.Completions).create({
     model: model.value,
-    // 你只需要输出总结文本，而不需要附加其他信息。不需要标点
     messages: [
       {
         role: 'system',
@@ -212,7 +201,7 @@ async function onSubmit() {
         scrollToBottomSmoothly(el, 1000)
       }
     })
-    const stream = await openai.value.chat.completions.create({
+    const stream = await (aiClient.value.chat.completions as OpenAI.Chat.Completions).create({
       messages: conversation.value,
       model: model.value,
       stream: true,
