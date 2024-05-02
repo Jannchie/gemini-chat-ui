@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import OpenAI from 'openai'
 import { GPTTokens } from 'gpt-tokens'
-import Groq from 'groq-sdk'
 import type { ChatMessage } from '../composables/useHelloWorld'
-import { generateId, isGroqModel, isMobile } from '../utils'
+import { generateId, isMobile } from '../utils'
 
 const model = useModel()
 const router = useRouter()
