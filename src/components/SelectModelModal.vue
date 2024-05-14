@@ -2,10 +2,7 @@
 import { getModelName } from '../utils'
 
 const models = [
-  'llama3-8b-8192',
-  'llama3-70b-8192',
-  'mixtral-8x7b-32768',
-  'gemma-7b-it',
+  'gpt-4o',
   'gpt-4-turbo',
   // 'gpt-4-turbo-2024-04-09',
   // 'gpt-4-0125-preview',
@@ -24,7 +21,11 @@ const models = [
   // 'gpt-3.5-turbo-0613',
   // 'gpt-3.5-turbo-1106',
   // 'gpt-3.5-turbo-0125',
-  'gpt-3.5-turbo-16k-0613',
+  // 'gpt-3.5-turbo-16k-0613',
+  'llama3-8b-8192',
+  'llama3-70b-8192',
+  'mixtral-8x7b-32768',
+  'gemma-7b-it',
 ]
 const model = defineModel<string>('model', {
   required: true,

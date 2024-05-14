@@ -19,6 +19,8 @@ export function getModelName(model: string) {
       return 'Groq Mixtral 8x7B'
     case 'gemma-7b-it':
       return 'Groq Gemma 7B IT'
+    case 'gpt-4o':
+      return 'GPT-4 Omni'
     case 'gpt-4-turbo':
       return 'GPT-4 Turbo'
     case 'gpt-4-turbo-2024-04-09':
