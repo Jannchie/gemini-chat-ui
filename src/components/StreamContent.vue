@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import markdownit from 'markdown-it'
-import Shikiji from 'markdown-it-shikiji'
+import Shiki from 'markdown-it-shiki'
 import VNodePlugin from '../utils/render'
 
 const props = defineProps<{
@@ -38,7 +38,7 @@ const md = markdownit({
 } as any)
 md.use(VNodePlugin)
 onMounted(async () => {
-  md.use(await Shikiji({
+  md.use(await Shiki({
     themes: {
       light: 'github-light',
       dark: 'github-dark',
@@ -47,13 +47,13 @@ onMounted(async () => {
   }))
 })
 function spliteContent(msg: string) {
-  const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
+  const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
   // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
-  if (!/[\.\?\!。？！；，、\`\n]$/.test(sentences[sentences.length - 1])) {
+  if (!/[.?!。？！；，、`\n]$/.test(sentences[sentences.length - 1])) {
     sentences.pop() // 移除最后一个句子
   }
   // 如果最后一个句子是列表项，则移除最后一个句子
-  if (/^[\d]+\./.test(sentences[sentences.length - 1])) {
+  if (/^\d+\./.test(sentences[sentences.length - 1])) {
     sentences.pop() // 移除最后一个句子
   }
   const content = sentences.join('')

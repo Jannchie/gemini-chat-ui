@@ -20,8 +20,8 @@ export const DOM_ATTR_NAME = {
 }
 
 const sensitiveUrlReg = /^javascript:|vbscript:|file:/i
-const sensitiveAttrReg = /^href|src|xlink:href|poster|srcset$/i
-const attrNameReg = /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/
+const sensitiveAttrReg = /^href|src|xlink:href|poster/i
+const attrNameReg = /^[a-z_:][\w:.-]*$/i
 const attrEventReg = /^on/i
 const defaultRules = {} as any
 
@@ -199,7 +199,7 @@ defaultRules.text = function (tokens: Token[], idx: number, _: any, env: any) {
     // 使用
     // 分割英语 (?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)
     // 分割中文 (?<=[。？！；])
-    const splited = token.content.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?|!|\`)/gm)
+    const splited = token.content.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
     return splited.map((content, i) => {
       return createVNode('span', { key: i }, { default: () => content })
     })
