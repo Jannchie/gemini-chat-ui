@@ -415,6 +415,9 @@ const extraInfo = computed(() => {
               }
             }"
             @keydown.stop.prevent.enter="async (e) => {
+              if (e.isComposing) {
+                return
+              }
               if (streaming) {
                 return
               }
@@ -429,7 +432,6 @@ const extraInfo = computed(() => {
                   $nextTick(() => {
                     const targetRows = Math.min(target.value.split('\n').length, 3)
                     rows = targetRows
-                    target.scrollTop = target.scrollHeight
                     target.selectionStart = selectStart + 1
                     target.selectionEnd = selectStart + 1
                   })

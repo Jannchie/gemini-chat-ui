@@ -10,14 +10,14 @@ function onHomeClick() {
   })
 }
 const text = ref('')
-const targetLang = ref('Chinese')
+const targetLang = useLocalStorage('translate.targetLang', 'chinese')
 const textDebounced = useDebounce(text, 1000)
 const conversation = computed<ChatMessage[]>(() => [{
   role: 'system',
-  content: 'Translate user\'s input to Chinese',
+  content: `Translate user\'s input to ${targetLang.value}`,
 }, {
   role: 'user',
-  content: `translate this to ${targetLang.value}:\n ${textDebounced.value}`,
+  content: `translate to ${targetLang.value}:\n ${textDebounced.value}`,
 }])
 
 const client = useClient()
@@ -81,9 +81,10 @@ watchEffect(async () => {
             <div class="animate-fade-delay">
               <div class="mb-4 flex items-center gap-4">
                 <button class="flex">
-                  <div class="rounded-2xl bg-neutral-8 px-4 py-3 text-xl">
-                    Chinese
-                  </div>
+                  <input
+                    v-model="targetLang"
+                    class="rounded-2xl bg-neutral-8 px-4 py-3 text-xl outline-none"
+                  >
                 </button>
               </div>
               <textarea

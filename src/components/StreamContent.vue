@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import markdownit from 'markdown-it'
-import Shiki from 'markdown-it-shiki'
+import Shiki from '@shikijs/markdown-it'
 import VNodePlugin from '../utils/render'
 
 const props = defineProps<{
