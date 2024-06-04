@@ -414,7 +414,7 @@ const extraInfo = computed(() => {
                 }
               }
             }"
-            @keydown.stop.prevent.enter="async (e) => {
+            @keypress.stop.prevent.enter="async (e) => {
               if (e.isComposing) {
                 return
               }
