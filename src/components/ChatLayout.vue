@@ -301,6 +301,50 @@ const totalUSDTransition = useTransition(totalUSD, {
 const extraInfo = computed(() => {
   return `Used Tokens: ${totalTokenTransition.value.toFixed(0)} (${totalUSDTransition.value.toFixed(5)}$) Speed: ${speed.value.toFixed(1)}/s`
 })
+
+async function onEnter(e: KeyboardEvent) {
+  if (e.isComposing) {
+    return
+  }
+  if (streaming.value) {
+    return
+  }
+  if (!input.value.trim()) {
+    return
+  }
+  const target = e.target as HTMLTextAreaElement
+  if (!isMobile.value && e.shiftKey && target) {
+    const selectStart = target.selectionStart
+    input.value = `${input.value.slice(0, selectStart)}\n${input.value.slice(target.selectionEnd)}`
+    if (e.target) {
+      nextTick(() => {
+        const totalRows = target.value.split('\n').length
+        const targetRows = Math.min(totalRows, 3)
+        rows.value = targetRows
+        target.selectionStart = selectStart + 1
+        target.selectionEnd = selectStart + 1
+        const lineHeight = Number.parseInt(window.getComputedStyle(target).lineHeight)
+        target.scroll({
+          top: lineHeight * totalRows,
+        })
+      })
+    }
+    return
+  }
+  if (isMobile.value) {
+    input.value += '\n'
+    const target = e.target as HTMLTextAreaElement
+    if (e.target) {
+      nextTick(() => {
+        const rows = target.value.split('\n').length
+        target.rows = rows
+        target.scrollTop = target.scrollHeight
+      })
+    }
+    return
+  }
+  onSubmit()
+}
 </script>
 
 <template>
@@ -414,44 +458,7 @@ const extraInfo = computed(() => {
                 }
               }
             }"
-            @keypress.stop.prevent.enter="async (e) => {
-              if (e.isComposing) {
-                return
-              }
-              if (streaming) {
-                return
-              }
-              if (!input.trim()) {
-                return
-              }
-              const target = e.target as HTMLTextAreaElement
-              if (!isMobile && e.shiftKey && target) {
-                const selectStart = target.selectionStart
-                input = `${input.slice(0, selectStart)}\n${input.slice(target.selectionEnd)}`
-                if (e.target){
-                  $nextTick(() => {
-                    const targetRows = Math.min(target.value.split('\n').length, 3)
-                    rows = targetRows
-                    target.selectionStart = selectStart + 1
-                    target.selectionEnd = selectStart + 1
-                  })
-                }
-                return
-              }
-              if (isMobile) {
-                input += '\n'
-                const target = e.target as HTMLTextAreaElement
-                if (e.target){
-                  $nextTick(() => {
-                    const rows = target.value.split('\n').length
-                    target.rows = rows
-                    target.scrollTop = target.scrollHeight
-                  })
-                }
-                return
-              }
-              onSubmit()
-            }"
+            @keypress.stop.prevent.enter="onEnter"
           />
         </div>
         <div class="animate-fade-delay flex animate-delay-500 gap-2 pb-3 pt-1 text-xs color-[#c4c7c5]">
