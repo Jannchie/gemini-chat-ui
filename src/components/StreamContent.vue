@@ -36,16 +36,15 @@ const md = markdownit({
   breaks: true,
   html: true,
 } as any)
-md.use(VNodePlugin)
-onMounted(async () => {
-  md.use(await Shiki({
-    themes: {
-      light: 'github-light',
-      dark: 'github-dark',
-    },
-    defaultColor: 'dark',
-  }))
+const shiki = await Shiki({
+  themes: {
+    light: 'github-light',
+    dark: 'github-dark',
+  },
+  defaultColor: 'dark',
 })
+md.use(VNodePlugin)
+md.use(shiki)
 function spliteContent(msg: string) {
   const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
   // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子

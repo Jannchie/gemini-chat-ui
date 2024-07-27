@@ -56,7 +56,7 @@ const tokenCost = computed(() => {
       messages: conversationThrottled.value,
     })
   }
-  catch (e) {
+  catch {
     return null
   }
 })

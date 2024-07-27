@@ -37,15 +37,17 @@ const props = defineProps<{
           />
         </svg>
       </div>
-      <StreamContent
-        v-if="role === 'assistant'"
-        :content="content"
-        :loading="loading"
-      />
-      <UserChatMessage
-        v-else-if="role === 'user'"
-        :content="content"
-      />
+      <Suspense>
+        <StreamContent
+          v-if="role === 'assistant'"
+          :content="content"
+          :loading="loading"
+        />
+        <UserChatMessage
+          v-else-if="role === 'user'"
+          :content="content"
+        />
+      </Suspense>
     </div>
   </div>
 </template>
