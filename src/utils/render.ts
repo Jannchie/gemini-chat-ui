@@ -72,7 +72,6 @@ function processToken(token: Token, env?: Record<string, any>) {
     if (token.map) {
       token.attrSet(DOM_ATTR_NAME.SOURCE_LINE_START, String(lineStart + 1))
       token.attrSet(DOM_ATTR_NAME.SOURCE_LINE_END, String(lineEnd + 1))
-      token.attrSet('key', `${lineStart}`)
       if (!token.meta.attrs) {
         token.meta.attrs = {}
       }
