@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RokuProvider } from '@roku-ui/vue'
 import { isGroqModel } from './utils'
 
 type ModelName =
@@ -52,14 +53,12 @@ provide('model', model)
 </script>
 
 <template>
-  <RouterView />
+  <RokuProvider>
+    <Suspense>
+      <RouterView />
+    </Suspense>
+  </RokuProvider>
 </template>
-
-<style>
-body {
-  overflow: hidden;
-}
-</style>
 
 <style>
 :root {
@@ -67,9 +66,6 @@ body {
   font-optical-sizing: auto;
   font-style: normal;
   color-scheme: dark light;
-}
-body {
-  background-color: #131314;
 }
 
 .input-section:before {

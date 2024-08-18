@@ -1,14 +1,10 @@
 import { defineConfig, presetTypography, presetUno } from 'unocss'
 import presetIcons from '@unocss/preset-icons'
+import { rokuPreset } from '@roku-ui/preset'
 
 export default defineConfig({
   presets: [
-    presetUno(),
-    presetIcons({
-      extraProperties: {
-        display: 'inline-block',
-      },
-    }),
+    rokuPreset(),
     presetTypography({
       cssExtend: {
         h1: {
