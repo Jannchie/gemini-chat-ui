@@ -15,9 +15,7 @@ const targetLang = useLocalStorage('translate.targetLang', 'chinese')
 const textDebounced = useDebounce(text, 1000)
 
 // 可以指定翻译的语气，可选项为：neutral, formal, informal, professional, friendly
-const tone = ref<
-  'neutral' | 'formal' | 'informal' | 'professional' | 'friendly'
->('neutral')
+const tone = useLocalStorage< 'neutral' | 'formal' | 'informal' | 'professional' | 'friendly'>('translate.tone', 'neutral')
 const tonePrompt = computed(() => {
   switch (tone.value) {
     case 'neutral':
@@ -25,18 +23,18 @@ const tonePrompt = computed(() => {
     case 'formal':
       return 'The tone should be formal, suitable for official documents, academic papers, or professional communications, with a respectful and polished style'
     case 'informal':
-      return 'Please translate the following text into English. The tone should be informal, conversational, and relaxed, as if you were talking to a friend or family member in a casual setting'
+      return 'The tone should be informal, conversational, and relaxed, as if you were talking to a friend or family member in a casual setting'
     case 'professional':
-      return 'Please translate the following text into English. The tone should be professional, appropriate for business communications, reports, or interactions in a corporate environment, with a clear, precise, and respectful style'
+      return 'The tone should be professional, appropriate for business communications, reports, or interactions in a corporate environment, with a clear, precise, and respectful style'
     case 'friendly':
-      return 'Please translate the following text into English. The tone should be friendly, warm, and approachable, creating a sense of familiarity and comfort as if speaking to a close acquaintance'
+      return 'The tone should be friendly, warm, and approachable, creating a sense of familiarity and comfort as if speaking to a close acquaintance'
     default:
       return ''
   }
 })
 const conversation = computed<ChatMessage[]>(() => [{
   role: 'system',
-  content: `Translate user\'s input to ${targetLang.value}. ${tonePrompt.value}. If the input text is already in ${targetLang.value}, just rewrite with ${targetLang.value}.`,
+  content: `Translate user\'s input to ${targetLang.value}. ${tonePrompt.value}. If the input text is already in ${targetLang.value}, just rewrite with ${tone.value} tone.`,
 }, {
   role: 'user',
   content: `${textDebounced.value}`,
@@ -123,13 +121,14 @@ watchEffect(async () => {
                 <input
                   v-model="targetLang"
                   placeholder="Language"
-                  class="bg-surface-base h-46px w-32 rounded-2xl px-4 py-3 text-xl outline-none"
+                  class="h-46px w-32 rounded-2xl bg-surface-base px-4 py-3 text-xl outline-none"
                 >
                 <div>
                   <BtnGroup
                     v-model="tone"
                     color="primary"
                     class="children:h-full children:rounded-2xl children:px-8 children:py-3"
+                    :rounded="1"
                     :unselectable="false"
                     :selections="[
                       { label: 'Neutral', value: 'neutral' },
@@ -150,7 +149,7 @@ watchEffect(async () => {
           </div>
           <Paper
             :loading="loading"
-            class="bg-surface-low animate-fade-delay min-h-110px flex-shrink-1 border border-transparent p-6 rounded-2xl!"
+            class="animate-fade-delay min-h-110px flex-shrink-1 border border-transparent bg-surface-low p-6 rounded-2xl!"
           >
             <StreamContent
               class="max-w-full"

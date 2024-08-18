@@ -55,8 +55,9 @@ const childClass = computed(() => isSingle.value ? null : 'first-children:rounde
       :key="getValue(selection)"
       :size="props.size"
       :model="model"
-      :variant="getValue(selection) === getValue(model) ? 'filled' : undefined"
+      :variant="getValue(selection) === model ? 'filled' : undefined"
       :color="props.color"
+      :rounded="props.rounded"
       @click="onClick(selection)"
     >
       <i
