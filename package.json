@@ -28,6 +28,7 @@
     "@shikijs/markdown-it": "^1.14.1",
     "@types/dom-view-transitions": "^1.0.5",
     "@types/markdown-it": "^14.1.2",
+    "@types/node": "^22.4.0",
     "@unocss/eslint-plugin": "^0.62.2",
     "@unocss/preset-icons": "^0.62.2",
     "@unocss/preset-typography": "^0.62.2",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Paper, ScrollArea } from '@roku-ui/vue'
+import BtnGroup from '../components/BtnGroup.vue'
 import type { ChatMessage } from '../composables/useHelloWorld'
 import StreamContent from '../components/StreamContent.vue'
 
@@ -13,11 +14,29 @@ const text = ref('')
 const targetLang = useLocalStorage('translate.targetLang', 'chinese')
 const textDebounced = useDebounce(text, 1000)
 
-// 可以指定翻译的语气，可选项为：formal, informal, neutral，分别含义是正式、非正式、中性
-
+// 可以指定翻译的语气，可选项为：neutral, formal, informal, professional, friendly
+const tone = ref<
+  'neutral' | 'formal' | 'informal' | 'professional' | 'friendly'
+>('neutral')
+const tonePrompt = computed(() => {
+  switch (tone.value) {
+    case 'neutral':
+      return 'The tone should be neutral, neither too formal nor too informal, maintaining a balanced and straightforward style'
+    case 'formal':
+      return 'The tone should be formal, suitable for official documents, academic papers, or professional communications, with a respectful and polished style'
+    case 'informal':
+      return 'Please translate the following text into English. The tone should be informal, conversational, and relaxed, as if you were talking to a friend or family member in a casual setting'
+    case 'professional':
+      return 'Please translate the following text into English. The tone should be professional, appropriate for business communications, reports, or interactions in a corporate environment, with a clear, precise, and respectful style'
+    case 'friendly':
+      return 'Please translate the following text into English. The tone should be friendly, warm, and approachable, creating a sense of familiarity and comfort as if speaking to a close acquaintance'
+    default:
+      return ''
+  }
+})
 const conversation = computed<ChatMessage[]>(() => [{
   role: 'system',
-  content: `Translate user\'s input to ${targetLang.value}. Ensure that the translation accurately conveys the original meaning and maintains fluency while adhering to the grammar and idiomatic expressions of the target language. If you encounter any proper nouns or specific terminology, try to keep them consistent or provide clarifications to ensure that the target audience can understand.`,
+  content: `Translate user\'s input to ${targetLang.value}. ${tonePrompt.value}. If the input text is already in ${targetLang.value}, just rewrite with ${targetLang.value}.`,
 }, {
   role: 'user',
   content: `${textDebounced.value}`,
@@ -101,12 +120,26 @@ watchEffect(async () => {
             </div>
             <div class="animate-fade-delay">
               <div class="mb-4 flex items-center gap-4">
-                <button class="flex">
-                  <input
-                    v-model="targetLang"
-                    class="rounded-2xl bg-neutral-8 px-4 py-3 text-xl outline-none"
-                  >
-                </button>
+                <input
+                  v-model="targetLang"
+                  placeholder="Language"
+                  class="bg-surface-base h-46px w-32 rounded-2xl px-4 py-3 text-xl outline-none"
+                >
+                <div>
+                  <BtnGroup
+                    v-model="tone"
+                    color="primary"
+                    class="children:h-full children:rounded-2xl children:px-8 children:py-3"
+                    :unselectable="false"
+                    :selections="[
+                      { label: 'Neutral', value: 'neutral' },
+                      { label: 'Formal', value: 'formal' },
+                      { label: 'Professional', value: 'professional' },
+                      { label: 'Informal', value: 'informal' },
+                      { label: 'Friendly', value: 'friendly' },
+                    ]"
+                  />
+                </div>
               </div>
               <textarea
                 v-model="text"
