@@ -66,6 +66,7 @@ provide('model', model)
   font-optical-sizing: auto;
   font-style: normal;
   color-scheme: dark light;
+  background-color: #1e1e1f !important;
 }
 
 .input-section:before {
@@ -146,5 +147,42 @@ textarea::placeholder {
   to {
     opacity: 1;
   }
+}
+</style>
+
+<style>
+.fade-enter-active {
+  transition: opacity 1s;
+}
+
+.fade-leave-active {
+  position: absolute;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+.fade-enter-to, .fade-leave-from {
+  opacity: 1;
+}
+p {
+  white-space: pre-wrap;
+}
+.line {
+  transition: opacity 0.5s;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 </style>

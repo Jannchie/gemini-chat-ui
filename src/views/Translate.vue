@@ -12,6 +12,7 @@ function onHomeClick() {
 }
 const text = ref('')
 const targetLang = useLocalStorage('translate.targetLang', 'chinese')
+const targetLangDebounced = useDebounce(targetLang, 1000)
 const textDebounced = useDebounce(text, 1000)
 
 // 可以指定翻译的语气，可选项为：neutral, formal, informal, professional, friendly
@@ -34,7 +35,7 @@ const tonePrompt = computed(() => {
 })
 const conversation = computed<ChatMessage[]>(() => [{
   role: 'system',
-  content: `Translate user\'s input to ${targetLang.value}. ${tonePrompt.value}. If the input text is already in ${targetLang.value}, just rewrite with ${tone.value} tone.`,
+  content: `Translate user\'s input to ${targetLangDebounced.value}. ${tonePrompt.value}. If the input text is already in ${targetLang.value}, just rewrite with ${tone.value} tone.`,
 }, {
   role: 'user',
   content: `${textDebounced.value}`,
@@ -159,7 +160,7 @@ watchEffect(async () => {
           </Paper>
           <WordExplainPaper
             :content="textDebounced"
-            :target-lang="targetLang"
+            :target-lang="targetLangDebounced"
           />
         </div>
       </ScrollArea>

@@ -58,6 +58,7 @@ const childClass = computed(() => isSingle.value ? null : 'first-children:rounde
       :variant="getValue(selection) === model ? 'filled' : undefined"
       :color="props.color"
       :rounded="props.rounded"
+      class="border-transparent!"
       @click="onClick(selection)"
     >
       <i

@@ -95,7 +95,7 @@ debouncedWatch([message], () => {
   <div
     key="prose"
     ref="streamMarkdownWrapperRef"
-    class="prose"
+    class="prose children:mt-0"
   >
     <StreamMarkdown />
   </div>

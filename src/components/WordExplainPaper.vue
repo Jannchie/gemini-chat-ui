@@ -58,18 +58,21 @@ watchEffect(async () => {
     v-if="content"
     :loading="loading"
     :rounded="1"
-    class="not-prose min-h-32 flex flex-col gap-6 border border-transparent"
+    class="not-prose min-h-32 flex flex-col gap-8 border border-transparent"
   >
     <div
       v-for="e, i in explains"
       :key="i"
-      class="flex flex-col gap-1"
+      class="flex flex-col gap-2"
     >
       <div class="flex items-end gap-2">
         <span class="text-3xl font-bold">
           {{ e.word }}
         </span>
-        <Tag>
+        <Tag
+          size="sm"
+          class="font-mono"
+        >
           {{ e.pos }}
         </Tag>
       </div>
