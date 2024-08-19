@@ -108,7 +108,7 @@ watchEffect(async () => {
         class="h-full flex flex-col overflow-x-hidden overflow-y-auto"
       >
         <div
-          class="m-auto max-w-830px w-full flex flex-col px-2 font-medium leading-4rem"
+          class="m-auto max-w-830px w-full flex flex-col gap-4 px-2 font-medium"
         >
           <div>
             <div class="mb-12 mt-8 text-3.5rem">
@@ -157,6 +157,10 @@ watchEffect(async () => {
               :loading="!translateContent"
             />
           </Paper>
+          <WordExplainPaper
+            :content="textDebounced"
+            :target-lang="targetLang"
+          />
         </div>
       </ScrollArea>
     </MainContainer>

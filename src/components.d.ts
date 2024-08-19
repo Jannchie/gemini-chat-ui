@@ -27,5 +27,7 @@ declare module 'vue' {
     StreamContent: typeof import('./components/StreamContent.vue')['default']
     Translate: typeof import('./views/Translate.vue')['default']
     UserChatMessage: typeof import('./components/UserChatMessage.vue')['default']
+    WordExplain: typeof import('./components/WordExplainPaper.vue')['default']
+    WordExplainPaper: typeof import('./components/WordExplainPaper.vue')['default']
   }
 }
