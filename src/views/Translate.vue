@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { Paper, ScrollArea } from '@roku-ui/vue'
-import BtnGroup from '../components/BtnGroup.vue'
+import { BtnGroup, Paper, ScrollArea } from '@roku-ui/vue'
 import type { ChatMessage } from '../composables/useHelloWorld'
 import StreamContent from '../components/StreamContent.vue'
 
@@ -128,8 +127,7 @@ watchEffect(async () => {
                   <BtnGroup
                     v-model="tone"
                     color="primary"
-                    class="children:h-full children:rounded-2xl children:px-8 children:py-3"
-                    :rounded="1"
+                    class="children:py-3 children:h-full! children:min-w-120px! children:border-transparent! first-children:rounded-2xl last-children:rounded-2xl"
                     :unselectable="false"
                     :selections="[
                       { label: 'Neutral', value: 'neutral' },
