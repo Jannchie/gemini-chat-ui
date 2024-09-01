@@ -42,6 +42,7 @@ const shiki = await Shiki({
     dark: 'github-dark',
   },
   defaultColor: 'dark',
+  fallbackLanguage: 'wiki',
 })
 md.use(VNodePlugin)
 md.use(shiki)
