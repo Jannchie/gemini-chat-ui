@@ -29,6 +29,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+      workbox: {
+        maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+      },
       manifest: {
         name: 'Chat Gemini UI',
         short_name: 'Chat G',
