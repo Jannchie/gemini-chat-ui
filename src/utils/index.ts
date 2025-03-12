@@ -1,3 +1,7 @@
+import Shiki from '@shikijs/markdown-it'
+import markdownit from 'markdown-it'
+import VNodePlugin from './render'
+
 export const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 })
@@ -64,4 +68,71 @@ export function getModelName(model: string) {
     default:
       return model
   }
+}
+
+export const md = markdownit({
+  linkify: true,
+  typographer: true,
+  breaks: true,
+  html: true,
+} as any)
+md.use(VNodePlugin)
+
+export async function loadShiki() {
+  const shiki = await Shiki({
+    themes: {
+      light: 'vitesse-light',
+      dark: 'vitesse-dark',
+    },
+    langs: [
+      'python',
+      'javascript',
+      'typescript',
+      'bash',
+      'json',
+      'yaml',
+      'html',
+      'css',
+      'markdown',
+      'rust',
+      'vue',
+      'c',
+      'c#',
+      'c++',
+      'java',
+      'go',
+      'php',
+      'ruby',
+      'swift',
+      'kotlin',
+      'scala',
+      'sql',
+      'perl',
+      'lua',
+      'r',
+      'dart',
+      'haskell',
+      'clojure',
+      'elixir',
+      'f#',
+      'groovy',
+      'powershell',
+      'racket',
+      'scheme',
+      'shell',
+      'ocaml',
+      'asm',
+      'matlab',
+      'hcl',
+      'objective-c',
+      'sas',
+      'pascal',
+      'vb',
+      'cobol',
+      'erlang',
+    ],
+    defaultColor: 'dark',
+    fallbackLanguage: 'wiki',
+  })
+  md.use(shiki)
 }

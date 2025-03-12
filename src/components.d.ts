@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AsideContainer: typeof import('./components/AsideContainer.vue')['default']
+    AssistantChatMessage: typeof import('./components/AssistantChatMessage.vue')['default']
     BaseContainer: typeof import('./components/BaseContainer.vue')['default']
     Chat: typeof import('./views/Chat.vue')['default']
     ChatAside: typeof import('./components/ChatAside.vue')['default']
@@ -17,6 +18,7 @@ declare module 'vue' {
     ChatLayout: typeof import('./components/ChatLayout.vue')['default']
     ChatMessage: typeof import('./components/ChatMessage.vue')['default']
     ChatWrapper: typeof import('./components/ChatWrapper.vue')['default']
+    copy: typeof import('./components/AssistantChatMessage.vue')['default']
     MainContainer: typeof import('./components/MainContainer.vue')['default']
     RecentChatWrapper: typeof import('./components/RecentChatWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

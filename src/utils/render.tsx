@@ -134,7 +134,6 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
     const idx = token.attrs?.filter((attr: any) => attr[0] === 'data-token-idx')[0][1] ?? '0'
     return h('div', { key: idx, innerHTML: `${highlighted}\n` })
   }
-
   const buildVNode = (attrs: any) => {
     const preAttrs = {
       'data-info': info,

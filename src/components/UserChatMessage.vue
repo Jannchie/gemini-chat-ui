@@ -23,16 +23,5 @@ const collapsed = ref<boolean>(true)
         :class="collapsed ? 'i-tabler-chevron-down' : 'i-tabler-chevron-up'"
       />
     </button>
-    <!-- <button
-      :disabled="streaming"
-      :class="{
-        'opacity-50 cursor-default': streaming,
-      }"
-      class="h-10 w-10 flex items-center justify-center rounded-full hover:bg-neutral-5/10"
-    >
-      <i
-        class="i-tabler-edit"
-      />
-    </button> -->
   </div>
 </template>

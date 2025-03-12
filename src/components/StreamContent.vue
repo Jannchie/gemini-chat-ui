@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import Shiki from '@shikijs/markdown-it'
-import markdownit from 'markdown-it'
-import VNodePlugin from '../utils/render'
+import { md } from '../utils'
 
 const props = defineProps<{
   content: string
@@ -30,22 +28,7 @@ function editResult(childrenRaw: VNode[]): VNode[] {
   }
   return children
 }
-const md = markdownit({
-  linkify: true,
-  typographer: true,
-  breaks: true,
-  html: true,
-} as any)
-const shiki = await Shiki({
-  themes: {
-    light: 'github-light',
-    dark: 'github-dark',
-  },
-  defaultColor: 'dark',
-  fallbackLanguage: 'wiki',
-})
-md.use(VNodePlugin)
-md.use(shiki)
+
 function spliteContent(msg: string) {
   const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
   // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子

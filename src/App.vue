@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { RokuProvider } from '@roku-ui/vue'
-import { isGroqModel } from './utils'
+import { isGroqModel, loadShiki } from './utils'
 
 type ModelName =
   | 'gpt-4o'
@@ -47,16 +47,16 @@ const apiKey = computed({
     }
   },
 })
-
+onMounted(async () => {
+  await loadShiki()
+})
 provide('apiKey', apiKey)
 provide('model', model)
 </script>
 
 <template>
   <RokuProvider>
-    <Suspense>
-      <RouterView />
-    </Suspense>
+    <RouterView />
   </RokuProvider>
 </template>
 
