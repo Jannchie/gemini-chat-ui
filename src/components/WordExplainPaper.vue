@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { ChatMessage } from '../composables/useHelloWorld'
 import { Paper, Tag } from '@roku-ui/vue'
 import { zodResponseFormat } from 'openai/helpers/zod'
 import { z } from 'zod'
-import type { ChatMessage } from '../composables/useHelloWorld'
 
 const props = withDefaults(defineProps<{
   content?: string

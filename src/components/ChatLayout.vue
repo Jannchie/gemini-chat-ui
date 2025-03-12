@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import OpenAI from 'openai'
-import { GPTTokens } from 'gpt-tokens'
 import type { ChatMessage } from '../composables/useHelloWorld'
+import { GPTTokens } from 'gpt-tokens'
+import OpenAI from 'openai'
 import { generateId, isMobile } from '../utils'
 
 const model = useModel()
@@ -369,14 +369,19 @@ async function onEnter(e: KeyboardEvent) {
         <div class="mb-10 mt-20 flex gap-4">
           <div class="animate-fade-delay">
             <button
-              class="h-200px w-200px flex flex-col justify-between rounded-xl bg-neutral-8 p-5 leading-0 hover:bg-neutral-7"
+              class="h-200px w-200px flex flex-col justify-between rounded-xl bg-neutral-8 p-5 leading-0 shadow-sm transition-colors hover:bg-neutral-7"
               @click="router.push({ name: 'translate' })"
             >
-              <div class="text-base">
-                Translate
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 flex items-center justify-center rounded-lg bg-blue-500/20">
+                  <i class="i-tabler-language h-5 w-5 text-blue-400" />
+                </div>
+                <div class="text-base font-medium">
+                  Translate
+                </div>
               </div>
-              <div class="h-10 w-10 flex items-center self-end justify-center rounded-full bg-neutral-9">
-                <i class="i-tabler-language-hiragana bottom-0 h-6 w-6" />
+              <div class="mt-4 text-xs text-neutral-5">
+                Easily translate between multiple languages
               </div>
             </button>
           </div>

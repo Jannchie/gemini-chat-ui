@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { BtnGroup, Paper, ScrollArea } from '@roku-ui/vue'
 import type { ChatMessage } from '../composables/useHelloWorld'
+import { BtnGroup, Paper, ScrollArea } from '@roku-ui/vue'
 import StreamContent from '../components/StreamContent.vue'
 
 const router = useRouter()
@@ -15,7 +15,7 @@ const targetLangDebounced = useDebounce(targetLang, 1000)
 const textDebounced = useDebounce(text, 1000)
 
 // 可以指定翻译的语气，可选项为：neutral, formal, informal, professional, friendly
-const tone = useLocalStorage< 'neutral' | 'formal' | 'informal' | 'professional' | 'friendly'>('translate.tone', 'neutral')
+const tone = useLocalStorage<'neutral' | 'formal' | 'informal' | 'professional' | 'friendly'>('translate.tone', 'neutral')
 const tonePrompt = computed(() => {
   switch (tone.value) {
     case 'neutral':
@@ -117,17 +117,20 @@ watchEffect(async () => {
               </div>
             </div>
             <div class="animate-fade-delay">
-              <div class="mb-4 flex items-center gap-4">
-                <input
-                  v-model="targetLang"
-                  placeholder="Language"
-                  class="h-46px w-32 rounded-2xl bg-surface-base px-4 py-3 text-xl outline-none"
-                >
+              <div class="mb-6 flex flex-wrap items-center gap-4">
+                <div class="relative">
+                  <i class="i-tabler-language absolute left-4 top-1/2 h-5 w-5 text-neutral-400 -translate-y-1/2" />
+                  <input
+                    v-model="targetLang"
+                    placeholder="Language"
+                    class="bg-surface-base/80 focus:border-primary-500 focus:ring-primary-500/20 h-46px w-40 border border-neutral-700/50 rounded-2xl py-3 pl-12 pr-4 text-lg outline-none transition-all focus:ring-2"
+                  >
+                </div>
                 <div>
                   <BtnGroup
                     v-model="tone"
                     color="primary"
-                    class="children:py-3 children:h-full! children:min-w-120px! children:border-transparent! first-children:rounded-2xl last-children:rounded-2xl"
+                    class="shadow-md children:py-3 children:h-full! children:min-w-120px! children:border-neutral-700! first-children:rounded-2xl last-children:rounded-2xl"
                     :unselectable="false"
                     :selections="[
                       { label: 'Neutral', value: 'neutral' },
@@ -139,27 +142,36 @@ watchEffect(async () => {
                   />
                 </div>
               </div>
-              <textarea
-                v-model="text"
-                style="resize: none; scrollbar-width: none; min-height: 200px; height: auto;"
-                class="z-10 w-full flex-grow-0 rounded-2xl bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
-              />
+              <div class="relative">
+                <textarea
+                  v-model="text"
+                  placeholder="Enter text to translate..."
+                  style="resize: none; scrollbar-width: none; min-height: 200px; height: auto;"
+                  class="focus:border-primary-500 focus:ring-primary-500/20 z-10 w-full flex-grow-0 border border-neutral-700/50 rounded-2xl bg-neutral-800/80 px-6 py-5 text-lg text-neutral-200 outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0 focus:ring-2"
+                />
+                <div class="absolute bottom-4 right-4 text-xs text-neutral-500">
+                  {{ text.length }} characters
+                </div>
+              </div>
             </div>
           </div>
           <Paper
             :loading="loading"
-            class="animate-fade-delay min-h-110px flex-shrink-1 border border-transparent bg-surface-low p-6 rounded-2xl!"
+            class="animate-fade-delay bg-surface-low/80 min-h-110px flex-shrink-1 border border-neutral-700/50 p-6 shadow-lg backdrop-blur-sm rounded-2xl!"
           >
+            <div
+              v-if="loading"
+              class="h-110px flex items-center justify-center"
+            >
+              <div class="loader border-primary-400 h-8 w-8 animate-spin border-t-2 border-b-transparent border-l-transparent border-r-transparent rounded-full" />
+            </div>
             <StreamContent
+              v-else
               class="max-w-full"
               :content="translateContent"
               :loading="!translateContent"
             />
           </Paper>
-          <WordExplainPaper
-            :content="textDebounced"
-            :target-lang="targetLangDebounced"
-          />
         </div>
       </ScrollArea>
     </MainContainer>

@@ -1,5 +1,5 @@
-import localforage from 'localforage'
 import type { ShallowRef } from 'vue'
+import localforage from 'localforage'
 
 export function useChatHistory() {
   const chatHistory = inject<ShallowRef<ChatData[]>>('chatHistory', shallowRef([]))

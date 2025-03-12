@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import localforage from 'localforage'
 import type { ChatData } from '../composables/useHelloWorld'
+import localforage from 'localforage'
 
 const router = useRouter()
 const chatHistory = shallowRef<ChatData[]>([])

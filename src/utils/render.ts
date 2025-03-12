@@ -1,8 +1,8 @@
-import { escapeHtml, unescapeAll } from 'markdown-it/lib/common/utils.mjs'
 import type Renderer from 'markdown-it/lib/renderer.mjs'
 import type Token from 'markdown-it/lib/token.mjs'
 import type { VNode } from 'vue'
-import { Comment, Fragment, Text, createVNode, h } from 'vue'
+import { escapeHtml, unescapeAll } from 'markdown-it/lib/common/utils.mjs'
+import { Comment, createVNode, Fragment, h, Text } from 'vue'
 
 export interface Plugin<Ctx = any> {
   name: string
@@ -111,7 +111,11 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
   const info = token.info ? unescapeAll(token.info).trim() : ''
   let langName = ''
   let langAttrs = ''
-  let highlighted: any; let i; let arr; let tmpAttrs; let tmpToken
+  let highlighted: any
+  let i
+  let arr
+  let tmpAttrs
+  let tmpToken
 
   if (info) {
     arr = info.split(/(\s+)/g)
