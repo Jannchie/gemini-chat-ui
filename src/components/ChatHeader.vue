@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { getModelName, isMobile } from '../utils'
+import { getModelName } from '../utils'
 
 const apiKey = useApiKey()
 const serviceUrl = ref('')
