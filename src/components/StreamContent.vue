@@ -29,24 +29,30 @@ function editResult(childrenRaw: VNode[]): VNode[] {
   return children
 }
 
-function spliteContent(msg: string) {
+function splitContent(msg: string) {
   const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
+
   // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
-  if (!/[.?!。？！；，、`\n]$/.test(sentences[sentences.length - 1])) {
+  if (sentences.length > 0 && !/[.?!。？！；，、`\n]$/.test(sentences[sentences.length - 1])) {
     sentences.pop() // 移除最后一个句子
   }
+
   // 如果最后一个句子是列表项，则移除最后一个句子
-  if (/^\d+\./.test(sentences[sentences.length - 1])) {
+  if (sentences.length > 0 && /^\d+\./.test(sentences[sentences.length - 1])) {
     sentences.pop() // 移除最后一个句子
   }
+
   const content = sentences.join('')
   return content
 }
+const formatedContent = computed(() => {
+  const msg = message.value
+  return splitContent(msg)
+})
 const content = computed(() => {
   const msg = message.value
   if (props.loading) {
-    const content = spliteContent(msg)
-    return content
+    return formatedContent.value
   }
   else {
     return msg
@@ -79,8 +85,14 @@ debouncedWatch([message], () => {
   <div
     key="prose"
     ref="streamMarkdownWrapperRef"
-    class="prose children:mt-0"
+    class="hover text-sm prose prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
   >
     <StreamMarkdown />
   </div>
 </template>
+
+<style>
+li > p {
+  margin: 0.25em 0em !important;
+}
+</style>
