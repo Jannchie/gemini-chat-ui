@@ -1,3 +1,4 @@
+import { katex } from '@mdit/plugin-katex'
 import Shiki from '@shikijs/markdown-it'
 import markdownit from 'markdown-it'
 import VNodePlugin from './render'
@@ -75,7 +76,9 @@ export const md = markdownit({
   html: true,
 } as any)
 md.use(VNodePlugin)
-
+md.use(katex, {
+  mathFence: '```',
+})
 export async function loadShiki() {
   const shiki = await Shiki({
     themes: {
@@ -128,6 +131,7 @@ export async function loadShiki() {
       'vb',
       'cobol',
       'erlang',
+      'wiki',
     ],
     defaultColor: 'dark',
     fallbackLanguage: 'wiki',
