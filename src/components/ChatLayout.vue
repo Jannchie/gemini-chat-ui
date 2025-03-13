@@ -154,9 +154,6 @@ const streaming = ref(false)
 const prevUSD = ref(0)
 const prevToken = ref(0)
 
-useBreakpoints({
-})
-
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const rows = ref(1)
 watch([input, textareaRef], () => {
@@ -198,6 +195,7 @@ async function onSubmit() {
         scrollToBottomSmoothly(el, 1000)
       }
     })
+    const lastMessage = conversation.value[conversation.value.length - 1]
     const stream = await aiClient.value.chat.completions.create({
       messages: conversation.value,
       model: model.value,
@@ -206,20 +204,20 @@ async function onSubmit() {
       if (err instanceof OpenAI.APIError) {
         switch (err.status) {
           case 401:
-            conversation.value[conversation.value.length - 1].content = 'Invalid API Key.'
+            lastMessage.content = 'Invalid API Key.'
             break
           case 403:
-            conversation.value[conversation.value.length - 1].content = 'API Key has no permission.'
+            lastMessage.content = 'API Key has no permission.'
             break
           case 429:
-            conversation.value[conversation.value.length - 1].content = 'Rate limit exceeded.'
+            lastMessage.content = 'Rate limit exceeded.'
             break
           default:
             if ((err?.status ?? 0) >= 500) {
-              conversation.value[conversation.value.length - 1].content = 'Server Error.'
+              lastMessage.content = 'Server Error.'
             }
             else {
-              conversation.value[conversation.value.length - 1].content = 'Error.'
+              lastMessage.content = 'Error.'
             }
         }
       }
@@ -231,16 +229,16 @@ async function onSubmit() {
       return
     }
     for await (const chunk of stream) {
-      const delta = chunk.choices[0].delta as any
       const lastMessage = conversation.value[conversation.value.length - 1]
+      const delta = chunk.choices[0].delta as any
       if (delta.content) {
         trigger()
         lastMessage.content += delta.content
-        conversation.value = [...conversation.value]
       }
       if (delta.reasoning && lastMessage.role === 'assistant') {
         lastMessage.reasoning += delta.reasoning
       }
+      conversation.value = conversation.value.map(d => ({ ...d }))
     }
   }
   finally {

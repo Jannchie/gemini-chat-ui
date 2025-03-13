@@ -5,18 +5,21 @@ const props = defineProps<{
   message: ChatMessage
   loading: boolean
 }>()
+const message = computed(() => props.message)
 </script>
 
 <template>
   <div
     class="m-auto w-full flex-grow-1 px-3 py-4 sm:max-w-712px sm:px-4 sm:py-6"
     :class="{
-      'bg-neutral-8 rounded-t-xl': props.message.role === 'user',
-      'bg-neutral-9 rounded-b-xl mb-2': props.message.role === 'assistant',
+      'bg-neutral-8 rounded-t-xl': message.role === 'user',
+      'bg-neutral-9 rounded-b-xl mb-2': message.role === 'assistant',
     }"
   >
     <!-- 移动端上下结构布局（图标+文字在上，内容在下） -->
-    <div class="block sm:hidden">
+    <div
+      class="block sm:hidden"
+    >
       <div class="mb-1 flex items-center">
         <div class="mr-1 flex-shrink-0 leading-0">
           <i
@@ -50,9 +53,10 @@ const props = defineProps<{
         />
       </div>
     </div>
-
     <!-- 桌面端保持原有的左右结构 -->
-    <div class="hidden sm:flex sm:gap-4">
+    <div
+      class="hidden sm:flex sm:gap-4"
+    >
       <div class="h-8 w-8 flex-shrink-0">
         <i
           v-if="props.message.role === 'user'"
@@ -61,20 +65,20 @@ const props = defineProps<{
         <i
           v-else
           class="i-fluent-bot-48-filled h-full w-full"
-          :class="{ 'animate-pulse': props.loading && props.message.role === 'assistant' }"
+          :class="{ 'animate-pulse': loading && message.role === 'assistant' }"
         />
       </div>
 
       <div class="flex-grow overflow-hidden">
         <StreamContent
-          v-if="props.message.role === 'assistant'"
-          :content="props.message.content"
-          :reasoning="props.message.reasoning"
+          v-if="message.role === 'assistant'"
+          :content="message.content"
+          :reasoning="message.reasoning"
           :loading="loading"
         />
         <UserChatMessage
           v-else
-          :content="props.message.content"
+          :content="message.content"
         />
       </div>
     </div>

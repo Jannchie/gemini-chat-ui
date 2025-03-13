@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { md } from '../utils'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   content: string
   reasoning?: string
   loading: boolean
-}>()
+}>(), {
+  reasoning: '',
+})
 const content = computed(() => props.content)
+const reasoning = computed(() => props.reasoning)
 const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
 const loading = computed(() => props.loading)
 const debouncedLoading = refDebounced(loading, 1000)
@@ -66,9 +69,7 @@ const contentVNodes = computedWithControl([contentFinal], () => {
   }) as unknown as VNode[]
   return editResult(r)
 })
-const reasoning = computed(() => {
-  return props.reasoning
-})
+
 const reasoningVNodes = computedWithControl([
   reasoning,
 ], () => {
@@ -95,7 +96,7 @@ const StreamMarkdownReasoning = defineComponent({
   },
 })
 debouncedWatch([content], () => {
-  reasoningVNodes.trigger()
+  contentVNodes.trigger()
 }, {
   debounce: 300,
 })
@@ -105,9 +106,6 @@ debouncedWatch([reasoning], () => {
 }, {
   debounce: 300,
 })
-// watchEffect(() => {
-//   console.log(content.value)
-// })
 </script>
 
 <template>
