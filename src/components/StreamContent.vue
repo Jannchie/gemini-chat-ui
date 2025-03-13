@@ -3,9 +3,10 @@ import { md } from '../utils'
 
 const props = defineProps<{
   content: string
+  reasoning?: string
   loading: boolean
 }>()
-const message = computed(() => props.content)
+const content = computed(() => props.content)
 const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
 const loading = computed(() => props.loading)
 const debouncedLoading = refDebounced(loading, 1000)
@@ -46,11 +47,11 @@ function splitContent(msg: string) {
   return content
 }
 const formatedContent = computed(() => {
-  const msg = message.value
+  const msg = content.value
   return splitContent(msg)
 })
-const content = computed(() => {
-  const msg = message.value
+const contentFormated = computed(() => {
+  const msg = content.value
   if (props.loading) {
     return formatedContent.value
   }
@@ -59,35 +60,70 @@ const content = computed(() => {
   }
 })
 
-const result = computedWithControl([
-  content,
+const contentResult = computedWithControl([
+  contentFormated,
 ], () => {
-  const r = md.render(content.value ?? '', {
+  const r = md.render(contentFormated.value ?? '', {
     sanitize: true,
   }) as unknown as VNode[]
   return editResult(r)
 })
-const StreamMarkdown = defineComponent({
+const reasoning = computed(() => {
+  return props.reasoning
+})
+const reasoningResult = computedWithControl([
+  reasoning,
+], () => {
+  return md.render(props.reasoning ?? '', {
+    sanitize: true,
+  }) as unknown as VNode[]
+})
+
+// eslint-disable-next-line vue/one-component-per-file
+const StreamMarkdownContent = defineComponent({
   setup() {
     return () => {
-      return result.value
+      return contentResult.value
     }
   },
 })
-debouncedWatch([message], () => {
-  result.trigger()
+
+// eslint-disable-next-line vue/one-component-per-file
+const StreamMarkdownReasoning = defineComponent({
+  setup() {
+    return () => {
+      return reasoningResult.value
+    }
+  },
+})
+debouncedWatch([content], () => {
+  contentResult.trigger()
+}, {
+  debounce: 100,
+})
+
+debouncedWatch([reasoning], () => {
+  reasoningResult.trigger()
 }, {
   debounce: 100,
 })
 </script>
 
 <template>
-  <div
-    key="prose"
-    ref="streamMarkdownWrapperRef"
-    class="hover text-sm prose prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
-  >
-    <StreamMarkdown />
+  <div>
+    <div
+      v-if="props.reasoning"
+      class="mb-4 min-w-full w-full overflow-auto rounded-xl bg-neutral-1 px-4 py-2 text-xs prose prose-gray dark:bg-neutral-950 dark:prose-invert"
+    >
+      <StreamMarkdownReasoning />
+    </div>
+    <div
+      key="prose"
+      ref="streamMarkdownWrapperRef"
+      class="hover text-sm prose prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
+    >
+      <StreamMarkdownContent />
+    </div>
   </div>
 </template>
 

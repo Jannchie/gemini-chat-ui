@@ -190,7 +190,7 @@ async function onSubmit() {
     const content = `${input.value.trim()}\n`
     inputHistory.commit()
     input.value = ''
-    conversation.value.push({ role: 'user', content }, { role: 'assistant', content: '' })
+    conversation.value.push({ role: 'user', content }, { role: 'assistant', content: '', reasoning: '' })
     conversation.value = [...conversation.value]
     nextTick(() => {
       const el = scrollArea.value
@@ -231,10 +231,15 @@ async function onSubmit() {
       return
     }
     for await (const chunk of stream) {
-      if (chunk.choices[0].delta.content) {
+      const delta = chunk.choices[0].delta as any
+      const lastMessage = conversation.value[conversation.value.length - 1]
+      if (delta.content) {
         trigger()
-        conversation.value[conversation.value.length - 1].content += chunk.choices[0].delta.content
+        lastMessage.content += delta.content
         conversation.value = [...conversation.value]
+      }
+      if (delta.reasoning && lastMessage.role === 'assistant') {
+        lastMessage.reasoning += delta.reasoning
       }
     }
   }
@@ -386,7 +391,7 @@ async function onEnter(e: KeyboardEvent) {
       <div
         v-else
         ref="scrollArea"
-        class="h-full flex flex-col overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
+        class="h-full flex flex-grow basis-0 flex-col overflow-x-hidden overflow-y-auto"
       >
         <template
           v-for="g, i in groupedConversation"
@@ -395,8 +400,7 @@ async function onEnter(e: KeyboardEvent) {
           <ChatMessage
             v-for="c, j in g"
             :key="j"
-            :role="c.role"
-            :content="c.content"
+            :message="c"
             :loading="streaming && groupedConversation.length - 1 === i"
           />
         </template>
