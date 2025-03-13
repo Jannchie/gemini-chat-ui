@@ -57,7 +57,7 @@ const message = computed(() => props.message)
     <div
       class="hidden sm:flex sm:gap-4"
     >
-      <div class="h-8 w-8 flex-shrink-0">
+      <div class="sticky top-4 z-10 h-8 w-8 flex-shrink-0">
         <i
           v-if="props.message.role === 'user'"
           class="i-fluent-person-28-filled h-full w-full"
