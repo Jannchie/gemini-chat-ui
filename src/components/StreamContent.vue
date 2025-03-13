@@ -156,7 +156,7 @@ function copyContentToClipboard() {
       <div
         key="prose"
         ref="streamMarkdownWrapperRef"
-        class="hover text-sm prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
+        class="hover text-sm prose prose-neutral children:mt-0 md:text-base prose-code:text-sm prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert prose-code:after:content-none prose-code:before:content-none"
       >
         <StreamMarkdownContent />
       </div>
@@ -173,5 +173,13 @@ li > p {
 }
 .code-content  pre {
   margin: 0px !important;
+}
+
+ /*非 pre 里的 code 有背景色 */
+code:not(pre code) {
+  background-color: #222 !important; /* 设定非 pre 里面的 code 背景色 */
+  border-radius: 0.25rem;
+  border: 1px solid #444;
+  padding: 0.125rem 0.5rem;
 }
 </style>
