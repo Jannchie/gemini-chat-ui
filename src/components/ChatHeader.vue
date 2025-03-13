@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useModels } from '../composables'
-import { apiKey, model, platform, serviceUrl } from '../shared'
+import { apiKey, customServiceUrl, model, platform } from '../shared'
 import { getPlatformIcon, getPlatformName } from '../utils'
 
 const showSelectModelModal = ref(false)
@@ -41,7 +41,7 @@ watchEffect(() => {
           <span class="pl-2 text-sm font-medium">Service URL</span>
         </div>
         <input
-          v-model="serviceUrl"
+          v-model="customServiceUrl"
           placeholder="Service URL"
           class="w-36 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
           type="text"
@@ -125,7 +125,7 @@ watchEffect(() => {
               Service URL
             </label>
             <input
-              v-model="serviceUrl"
+              v-model="customServiceUrl"
               placeholder="Service URL"
               class="w-full rounded-lg bg-[#1e1e1f] px-4 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-green-500/50 focus:ring-2 focus:ring-green-500/20"
               type="text"

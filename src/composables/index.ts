@@ -1,29 +1,5 @@
-import OpenAI from 'openai'
-import { apiKey, platform, serviceUrl } from '../shared'
+import { client } from '../shared'
 
-const client = computed(() => {
-  const finalServiceUrl = computed(() => {
-    if (platform.value === 'custom') {
-      return serviceUrl.value
-    }
-    switch (platform.value) {
-      case 'openai':
-        return 'https://api.openai.com/v1/'
-      case 'anthropic':
-        return 'https://api.anthropic.com/v1/'
-      case 'openrouter':
-        return 'https://openrouter.ai/api/v1/'
-      case 'deepseek':
-        return 'https://api.deepseek.com'
-    }
-  })
-
-  return new OpenAI({
-    apiKey: apiKey.value,
-    baseURL: finalServiceUrl.value,
-    dangerouslyAllowBrowser: true,
-  })
-})
 export function useClient() {
   return client
 }
@@ -41,6 +17,16 @@ export function useModels() {
   })
   watch(client, async () => {
     try {
+      if (client.value.baseURL === 'https://api.anthropic.com/v1/') {
+        return [
+          'claude-3-7-sonnet-latest',
+          'claude-3-5-haiku-latest',
+          'claude-3-5-sonnet-latest',
+          'claude-3-opus-latest',
+          'claude-3-sonnet-20240229',
+          'claude-3-haiku-20240307',
+        ]
+      }
       const response = await client.value.models.list()
       models.value = response.data.map(d => d.id)
     }
