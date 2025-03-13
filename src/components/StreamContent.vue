@@ -15,6 +15,7 @@ const reasoning = computed(() => props.reasoning)
 const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
 const loading = computed(() => props.loading)
 const debouncedLoading = refDebounced(loading, 1000)
+const showCopyTooltip = ref(false)
 
 function editResult(childrenRaw: VNode[]): VNode[] {
   const children = childrenRaw.flat(20)
@@ -108,37 +109,55 @@ debouncedWatch([reasoning], () => {
   debounce: 300,
 })
 
-// 新增代码：复制功能
+// Enhanced copy functionality with tooltip feedback
 function copyContentToClipboard() {
   const markdownContent = contentFinal.value
   navigator.clipboard.writeText(markdownContent).then(() => {
-    alert('Content copied to clipboard!')
+    showCopyTooltip.value = true
+    setTimeout(() => {
+      showCopyTooltip.value = false
+    }, 2000)
   }).catch((err) => {
-    alert(`Failed to copy content: ${err}`)
+    console.error(`Failed to copy content: ${err}`)
   })
 }
 </script>
 
 <template>
-  <div>
-    <button
-      class="copy-button"
-      @click="copyContentToClipboard"
-    >
-      Copy Markdown
-    </button>
-    <div
-      v-if="reasoning && reasoning.length > 0"
-      class="mb-4 min-w-full w-full overflow-auto rounded-xl bg-neutral-1 px-4 py-2 text-xs prose prose-gray dark:bg-neutral-950 dark:prose-invert"
-    >
-      <StreamMarkdownReasoning />
-    </div>
-    <div
-      key="prose"
-      ref="streamMarkdownWrapperRef"
-      class="hover text-sm prose prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
-    >
-      <StreamMarkdownContent />
+  <div class="relative">
+    <div>
+      <div
+        v-if="reasoning && reasoning.length > 0"
+        class="mb-4 min-w-full w-full overflow-auto rounded-xl bg-neutral-1 px-4 py-2 text-xs prose prose-gray dark:bg-neutral-950 dark:prose-invert"
+      >
+        <StreamMarkdownReasoning />
+      </div>
+      
+      <div class="relative mb-2">
+        <div class="absolute top-0 right-0 z-10">
+          <button
+            class="flex items-center justify-center w-8 h-8 p-1.5 bg-transparent rounded transition-all duration-200 opacity-50 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
+            @click="copyContentToClipboard"
+            aria-label="Copy markdown content"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <div v-if="showCopyTooltip" class="absolute -bottom-7 right-0 bg-black/70 dark:bg-white/70 text-white dark:text-black text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+              Copied!
+            </div>
+          </button>
+        </div>
+      </div>
+      
+      <div
+        key="prose"
+        ref="streamMarkdownWrapperRef"
+        class="hover text-sm prose prose-neutral children:mt-0 md:text-base prose-h1:text-3xl prose-h2:text-xl prose-h3:text-lg prose-h4:text-base prose-h5:text-base dark:prose-invert"
+      >
+        <StreamMarkdownContent />
+      </div>
     </div>
   </div>
 </template>
@@ -146,17 +165,5 @@ function copyContentToClipboard() {
 <style>
 li > p {
   margin: 0.25em 0em !important;
-}
-.copy-button {
-  margin-bottom: 16px;
-  padding: 8px 16px;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.copy-button:hover {
-  background-color: #0056b3;
 }
 </style>
