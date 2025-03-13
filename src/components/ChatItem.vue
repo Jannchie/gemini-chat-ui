@@ -5,35 +5,16 @@ const props = defineProps<{
   chatData: ChatData
   active: boolean
 }>()
-const currentChat = useCurrentChat()
-const [chatHistory, setChatHistory] = useChatHistory()
 const buttonRef = ref<HTMLElement | null>(null)
-const menuRef = ref<HTMLElement | null>(null)
 const hover = useElementHover(buttonRef)
-const showMenu = ref(false)
+const openedMenuChat = inject<Ref<ChatData | null>>('openedMenuChat', ref(null))
 function onActionClick(e: MouseEvent) {
   e.stopPropagation()
-  showMenu.value = !showMenu.value
-}
-onClickOutside(menuRef, (e) => {
-  if (!showMenu.value) {
-    return
-  }
-  e.stopPropagation()
-  showMenu.value = false
-  hover.value = false
-})
-
-function onDelete(e: MouseEvent) {
-  e.stopPropagation()
   e.preventDefault()
-  showMenu.value = false
-  chatHistory.value = [...chatHistory.value.filter(chat => chat.id !== props.chatData.id)]
-  setChatHistory(chatHistory.value)
-  if (currentChat.value?.id === props.chatData.id) {
-    currentChat.value = null
-  }
+  openedMenuChat.value = props.chatData
 }
+const showMenu = computed(() => openedMenuChat.value?.id === props.chatData.id)
+
 const router = useRouter()
 function onClick() {
   // currentChat = chatData
@@ -84,20 +65,5 @@ function onClick() {
       v-if="showMenu"
       class="fixed inset-0 z-9"
     />
-    <menu
-      v-if="showMenu"
-
-      ref="menuRef"
-      class="absolute left-[calc(100%+1rem)] top-0 z-10"
-    >
-      <div class="w-32 overflow-hidden rounded-md bg-neutral-8">
-        <button
-          class="w-full px-4 py-2 hover:bg-neutral-7"
-          @click="onDelete"
-        >
-          Delete
-        </button>
-      </div>
-    </menu>
   </button>
 </template>
