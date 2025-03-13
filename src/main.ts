@@ -5,7 +5,7 @@ import { router } from './router/router'
 
 import '@unocss/reset/tailwind.css'
 import 'virtual:uno.css'
-
+import 'katex/dist/katex.min.css'
 primaryColor.value = '#9b95b8'
 const app = createApp(App)
 app.use(router)

@@ -11,7 +11,6 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
-    "@mdit/plugin-katex": "^0.16.7",
     "@roku-ui/preset": "^0.20.0",
     "@roku-ui/vue": "^0.20.0",
     "@vueuse/core": "^13.0.0",
@@ -24,6 +23,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "katex": "^0.16.21",
+    "markdown-it-texmath": "^1.0.0",
     "@formkit/auto-animate": "^0.8.2",
     "@iconify/json": "^2.2.316",
     "@jannchie/eslint-config": "^3.4.4",

@@ -26,9 +26,15 @@ importers:
       groq-sdk:
         specifier: ^0.16.0
         version: 0.16.0
+      katex:
+        specifier: ^0.16.21
+        version: 0.16.21
       localforage:
         specifier: ^1.10.0
         version: 1.10.0
+      markdown-it-texmath:
+        specifier: ^1.0.0
+        version: 1.0.0
       openai:
         specifier: ^4.87.3
         version: 4.87.3(zod@3.24.2)
@@ -3086,6 +3092,9 @@ packages:
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  markdown-it-texmath@1.0.0:
+    resolution: {integrity: sha512-4hhkiX8/gus+6e53PLCUmUrsa6ZWGgJW2XCW6O0ASvZUiezIK900ZicinTDtG3kAO2kon7oUA/ReWmpW2FByxg==}
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
@@ -7777,6 +7786,8 @@ snapshots:
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  markdown-it-texmath@1.0.0: {}
 
   markdown-it@14.1.0:
     dependencies:

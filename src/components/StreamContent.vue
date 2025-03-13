@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { md } from '../utils'
 
 const props = withDefaults(defineProps<{
@@ -8,16 +9,17 @@ const props = withDefaults(defineProps<{
 }>(), {
   reasoning: '',
 })
+
 const content = computed(() => props.content)
 const reasoning = computed(() => props.reasoning)
 const streamMarkdownWrapperRef = ref<HTMLElement | null>(null)
 const loading = computed(() => props.loading)
 const debouncedLoading = refDebounced(loading, 1000)
+
 function editResult(childrenRaw: VNode[]): VNode[] {
   const children = childrenRaw.flat(20)
   for (let i = 0; i < children.length; i++) {
     const child = children[i]
-    // 如果包含文本节点
     if (typeof child.children === 'string') {
       child.props = {
         ...child.props,
@@ -36,23 +38,23 @@ function editResult(childrenRaw: VNode[]): VNode[] {
 function splitContent(msg: string) {
   const sentences = msg.split(/(?<=[。？！；、，\n])|(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=[.?!`])/g)
 
-  // 如果最后一个句子不是以标点符号结尾，则移除最后一个句子
   if (sentences.length > 0 && !/[.?!。？！；，、`\n]$/.test(sentences[sentences.length - 1])) {
-    sentences.pop() // 移除最后一个句子
+    sentences.pop()
   }
 
-  // 如果最后一个句子是列表项，则移除最后一个句子
   if (sentences.length > 0 && /^\d+\./.test(sentences[sentences.length - 1])) {
-    sentences.pop() // 移除最后一个句子
+    sentences.pop()
   }
 
   const content = sentences.join('')
   return content
 }
+
 const formatedContent = computed(() => {
   const msg = content.value
   return splitContent(msg)
 })
+
 const contentFinal = computed(() => {
   const msg = content.value
   if (props.loading) {
@@ -78,7 +80,6 @@ const reasoningVNodes = computedWithControl([
   }) as unknown as VNode[]
 })
 
-// eslint-disable-next-line vue/one-component-per-file
 const StreamMarkdownContent = defineComponent({
   setup() {
     return () => {
@@ -87,7 +88,6 @@ const StreamMarkdownContent = defineComponent({
   },
 })
 
-// eslint-disable-next-line vue/one-component-per-file
 const StreamMarkdownReasoning = defineComponent({
   setup() {
     return () => {
@@ -95,6 +95,7 @@ const StreamMarkdownReasoning = defineComponent({
     }
   },
 })
+
 debouncedWatch([content], () => {
   contentVNodes.trigger()
 }, {
@@ -106,10 +107,26 @@ debouncedWatch([reasoning], () => {
 }, {
   debounce: 300,
 })
+
+// 新增代码：复制功能
+function copyContentToClipboard() {
+  const markdownContent = contentFinal.value
+  navigator.clipboard.writeText(markdownContent).then(() => {
+    alert('Content copied to clipboard!')
+  }).catch((err) => {
+    alert(`Failed to copy content: ${err}`)
+  })
+}
 </script>
 
 <template>
   <div>
+    <button
+      class="copy-button"
+      @click="copyContentToClipboard"
+    >
+      Copy Markdown
+    </button>
     <div
       v-if="reasoning && reasoning.length > 0"
       class="mb-4 min-w-full w-full overflow-auto rounded-xl bg-neutral-1 px-4 py-2 text-xs prose prose-gray dark:bg-neutral-950 dark:prose-invert"
@@ -129,5 +146,17 @@ debouncedWatch([reasoning], () => {
 <style>
 li > p {
   margin: 0.25em 0em !important;
+}
+.copy-button {
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.copy-button:hover {
+  background-color: #0056b3;
 }
 </style>

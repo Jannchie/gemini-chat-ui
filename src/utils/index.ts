@@ -1,6 +1,7 @@
-import { katex } from '@mdit/plugin-katex'
 import Shiki from '@shikijs/markdown-it'
+import katex from 'katex'
 import markdownit from 'markdown-it'
+import texmath from 'markdown-it-texmath'
 import VNodePlugin from './render'
 
 export * from './platform'
@@ -76,9 +77,8 @@ export const md = markdownit({
   html: true,
 } as any)
 md.use(VNodePlugin)
-md.use(katex, {
-  mathFence: '```',
-})
+const tm = texmath.use(katex)
+md.use(tm, { delimiters: ['brackets','dollars'] })
 export async function loadShiki() {
   const shiki = await Shiki({
     themes: {

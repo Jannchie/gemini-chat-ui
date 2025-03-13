@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RokuProvider } from '@roku-ui/vue'
 import { loadShiki } from './utils'
-import '@mdit/plugin-katex'
+
 // type ModelName =
 //   | 'gpt-4o'
 //   | 'gpt-4-turbo'
