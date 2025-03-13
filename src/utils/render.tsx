@@ -194,6 +194,15 @@ defaultRules.softbreak = function (_: Token[], idx: number, options: any) {
   return options.breaks ? h('br', { key: idx }) : null
 }
 
+defaultRules.list_item_open = function (tokens: Token[], idx: number, _: any, __: any, self: Renderer) {
+  return h('li', { key: idx, ...self.renderAttrs(tokens[idx]) as any }, [])
+}
+
+defaultRules.paragraph_open = function (tokens: Token[], idx: number, _: any, __: any, self: Renderer) {
+  // 强制添加 p 标签，即使单个列表项。从而防止列表项元素突变。
+  return h('p', { key: idx, ...self.renderAttrs(tokens[idx]) as any }, [])
+}
+
 defaultRules.text = function (tokens: Token[], idx: number, _: any, env: any) {
   const token = tokens[idx]
   if (env.sanitize) {
