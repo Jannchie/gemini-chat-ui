@@ -389,7 +389,7 @@ async function onEnter(e: KeyboardEvent) {
       <div
         v-else
         ref="scrollArea"
-        class="overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
+        class="overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100dvh-120px-72px)]"
       >
         <template
           v-for="g, i in groupedConversation"
