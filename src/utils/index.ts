@@ -2,15 +2,13 @@ import Shiki from '@shikijs/markdown-it'
 import markdownit from 'markdown-it'
 import VNodePlugin from './render'
 
+export * from './platform'
+
 export const isMobile = computed(() => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 })
 export function generateId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2)
-}
-
-export function isGroqModel(model: string) {
-  return model.startsWith('llama3') || model.startsWith('mixtral') || model.startsWith('gemma')
 }
 
 export function getModelName(model: string) {
