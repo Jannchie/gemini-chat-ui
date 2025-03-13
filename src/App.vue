@@ -86,10 +86,10 @@ textarea::placeholder {
 }
 
 .gradient-text {
-  --gradient-color-1: #4285f4;
-  --gradient-color-2: #9b72cb;
-  --gradient-color-3: #d96570;
-  background: linear-gradient(74deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), var(--gradient-color-3), var(--gradient-color-2), var(--gradient-color-1),  var(--gradient-color-2), var(--gradient-color-3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
+  --gradient-color-1: #004183;
+  --gradient-color-2: #0a57a5;
+  --gradient-color-3: #c71d86;
+  background: linear-gradient(74deg, var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), var(--gradient-color-3), var(--gradient-color-2), var(--gradient-color-1), var(--gradient-color-2), var(--gradient-color-3), rgba(0, 0, 0, 0), rgba(0, 0, 0, 0));
   background-size: 400% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -97,6 +97,7 @@ textarea::placeholder {
   display: inline-block;
   animation: gradient-animation 2s forwards;
 }
+
 @keyframes gradient-animation {
   0% {
     background-position: 100% 0%;

@@ -106,6 +106,61 @@ defaultRules.code_block = function (tokens: Token[], idx: number, _: any, __: an
   )
 }
 
+const CodeBlockWrapper = defineComponent({
+  name: 'CodeBlockWrapper',
+  props: {
+    language: {
+      type: String,
+      default: '',
+    },
+    content: {
+      type: String,
+      required: true,
+    },
+    preAttrs: {
+      type: Object,
+      default: () => ({}),
+    },
+  },
+  setup(props) {
+    const copied = ref(false)
+
+    const copyCode = () => {
+      // 创建一个临时的元素来提取文本内容
+      const tempElement = document.createElement('div')
+      tempElement.innerHTML = props.content // 设置 HTML 内容
+      const { textContent } = tempElement
+      navigator.clipboard.writeText(textContent ?? '').then(() => {
+        copied.value = true
+        setTimeout(() => {
+          copied.value = false
+        }, 2000)
+      })
+    }
+
+    return { copyCode, copied }
+  },
+  render() {
+    return h('div', {
+      class: 'code-block-wrapper border rounded-xl my-4 overflow-hidden',
+    }, [
+      h('div', {
+        class: 'code-block-toolbar bg-neutral-9 border-b px-4 text-neutral-4 py-2 flex justify-between items-center',
+      }, [
+        h('span', { class: 'code-language text-sm' }, this.language || 'text'),
+        h('button', {
+          class: 'copy-button text-sm w-6 h-6 rounded hover:bg-neutral-7 leading-0',
+          onClick: this.copyCode,
+        }, this.copied ? h('i', { class: 'i-tabler-check' }) : h('i', { class: 'i-tabler-copy' })),
+      ]),
+      h('div', { class: 'code-content' }, [
+        h('pre', this.preAttrs, [createVNode('code', { innerHTML: this.content }, [])]),
+      ]),
+    ])
+  },
+})
+
+// Modified fence rule
 defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: any, slf: Renderer) {
   const token = tokens[idx]
   const info = token.info ? unescapeAll(token.info).trim() : ''
@@ -122,7 +177,6 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
     langName = arr[0]
     langAttrs = arr.slice(2).join('')
   }
-
   if (options.highlight) {
     highlighted = options.highlight(token.content, langName, langAttrs) || escapeHtml(token.content)
   }
@@ -130,10 +184,6 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
     highlighted = escapeHtml(token.content)
   }
 
-  if (highlighted.indexOf('<pre') === 0) {
-    const idx = token.attrs?.filter((attr: any) => attr[0] === 'data-token-idx')[0][1] ?? '0'
-    return h('div', { key: idx, innerHTML: `${highlighted}\n` })
-  }
   const buildVNode = (attrs: any) => {
     const preAttrs = {
       'data-info': info,
@@ -145,16 +195,18 @@ defaultRules.fence = function (tokens: Token[], idx: number, options: any, _: an
     delete attrs[DOM_ATTR_NAME.SOURCE_LINE_START]
     delete attrs[DOM_ATTR_NAME.SOURCE_LINE_END]
 
-    return createVNode(
-      'pre',
-      preAttrs,
-      [createVNode('code', { key: highlighted, ...attrs, innerHTML: highlighted }, [])],
+    // Use our wrapper component instead of directly returning pre/code
+    return h(
+      CodeBlockWrapper,
+      {
+        language: langName,
+        content: highlighted,
+        preAttrs,
+      },
     )
   }
 
   // If language exists, inject class gently, without modifying original token.
-  // May be, one day we will add .deepClone() for token and simplify this part, but
-  // now we prefer to keep things local.
   if (info) {
     i = token.attrIndex('class')
     tmpAttrs = token.attrs ? token.attrs.slice() : []

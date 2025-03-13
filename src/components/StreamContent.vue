@@ -81,6 +81,7 @@ const reasoningVNodes = computedWithControl([
   }) as unknown as VNode[]
 })
 
+// eslint-disable-next-line vue/one-component-per-file
 const StreamMarkdownContent = defineComponent({
   setup() {
     return () => {
@@ -89,6 +90,7 @@ const StreamMarkdownContent = defineComponent({
   },
 })
 
+// eslint-disable-next-line vue/one-component-per-file
 const StreamMarkdownReasoning = defineComponent({
   setup() {
     return () => {
@@ -132,22 +134,25 @@ function copyContentToClipboard() {
       >
         <StreamMarkdownReasoning />
       </div>
-      
+
       <div class="relative mb-2">
-        <div class="absolute top-0 right-0 z-10">
+        <div class="absolute right-0 top-0 z-10">
           <button
-            class="flex items-center justify-center w-8 h-8 p-1.5 bg-transparent rounded transition-all duration-200 opacity-50 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/10"
-            @click="copyContentToClipboard"
+            class="h-8 w-8 flex items-center justify-center rounded bg-transparent p-1.5 opacity-50 transition-all duration-200 hover:bg-black/5 hover:opacity-100 dark:hover:bg-white/10"
             aria-label="Copy markdown content"
+            @click="copyContentToClipboard"
           >
             <i class="i-tabler-copy h-5 w-5 text-neutral-500 dark:text-neutral-4" />
-            <div v-if="showCopyTooltip" class="absolute -bottom-7 right-0 bg-black/70 dark:bg-white/70 text-white dark:text-black text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
+            <div
+              v-if="showCopyTooltip"
+              class="pointer-events-none absolute right-0 whitespace-nowrap rounded bg-black/70 px-2 py-1 text-xs text-white -bottom-7 dark:bg-white/70 dark:text-black"
+            >
               Copied!
             </div>
           </button>
         </div>
       </div>
-      
+
       <div
         key="prose"
         ref="streamMarkdownWrapperRef"
@@ -162,5 +167,11 @@ function copyContentToClipboard() {
 <style>
 li > p {
   margin: 0.25em 0em !important;
+}
+.code-content > pre {
+  padding: 0px !important;
+}
+.code-content  pre {
+  margin: 0px !important;
 }
 </style>
