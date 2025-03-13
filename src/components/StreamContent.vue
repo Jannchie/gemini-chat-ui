@@ -140,10 +140,7 @@ function copyContentToClipboard() {
             @click="copyContentToClipboard"
             aria-label="Copy markdown content"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-            </svg>
+            <i class="i-tabler-copy h-5 w-5 text-neutral-500 dark:text-neutral-4" />
             <div v-if="showCopyTooltip" class="absolute -bottom-7 right-0 bg-black/70 dark:bg-white/70 text-white dark:text-black text-xs px-2 py-1 rounded whitespace-nowrap pointer-events-none">
               Copied!
             </div>
