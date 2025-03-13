@@ -466,16 +466,7 @@ async function onEnter(e: KeyboardEvent) {
         </div>
         <div class="animate-fade-delay flex animate-delay-500 gap-2 pb-3 pt-1 text-xs color-[#c4c7c5]">
           <span>
-            Gemini Style Web UI for Chat Services
-          </span>
-          <span>
-            By
-            <a
-              class="underline"
-              target="_blank"
-              href="https://github.com/Jannchie"
-            >Jannchie
-            </a>
+            Jannchie's Web UI for Chat Services
           </span>
           <a
             class="underline"

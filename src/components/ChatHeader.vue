@@ -14,6 +14,13 @@ const showMobileMenu = ref(false)
 
 <template>
   <header class="flex flex-shrink-0 items-center justify-between gap-4 px-4 py-3 text-lg md:h-72px md:px-6">
+    <!-- New Conversation Button for small screens -->
+    <button
+      class="flex items-center justify-center rounded-full p-2 text-lg md:hidden hover:bg-neutral-8"
+      @click="$router.push('/')"
+    >
+      <i class="i-tabler-plus text-neutral-400" />
+    </button>
     <!-- Model selection - visible on all devices -->
     <button
       class="flex cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-neutral-8 md:px-4 md:py-2.5"

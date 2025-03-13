@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@mdit/plugin-katex':
-        specifier: ^0.16.7
-        version: 0.16.7(markdown-it@14.1.0)
       '@roku-ui/preset':
         specifier: ^0.20.0
         version: 0.20.0
@@ -26,15 +23,12 @@ importers:
       groq-sdk:
         specifier: ^0.16.0
         version: 0.16.0
-      katex:
-        specifier: ^0.16.21
-        version: 0.16.21
       localforage:
         specifier: ^1.10.0
         version: 1.10.0
-      markdown-it-texmath:
-        specifier: ^1.0.0
-        version: 1.0.0
+      markdown-it-todo:
+        specifier: ^1.0.5
+        version: 1.0.5
       openai:
         specifier: ^4.87.3
         version: 4.87.3(zod@3.24.2)
@@ -93,9 +87,15 @@ importers:
       eslint:
         specifier: ^9.22.0
         version: 9.22.0(jiti@2.4.2)
+      katex:
+        specifier: ^0.16.21
+        version: 0.16.21
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
+      markdown-it-texmath:
+        specifier: ^1.0.0
+        version: 1.0.0
       shiki:
         specifier: ^3.2.1
         version: 3.2.1
@@ -1165,33 +1165,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
-
-  '@mdit/helper@0.16.0':
-    resolution: {integrity: sha512-vUmLSZp+7UXJIYxOya9BkD0OgjgQ+6gpX+htEnc4SKaDPx4S1E7h5TE6Wy4E9Gm/JhkMHoD6TdeoQwrN/I9cLQ==}
-    engines: {node: '>= 18'}
-    peerDependencies:
-      markdown-it: ^14.1.0
-    peerDependenciesMeta:
-      markdown-it:
-        optional: true
-
-  '@mdit/plugin-katex@0.16.7':
-    resolution: {integrity: sha512-W9lxYlAW8eWZxnYQfX82rTZ8o9dOf+5IXmfBzErr5es3rBETpNEETHzf7XINlNwGlLI206wtR/uM/p5buCUw1Q==}
-    engines: {node: '>= 18'}
-    peerDependencies:
-      markdown-it: ^14.1.0
-    peerDependenciesMeta:
-      markdown-it:
-        optional: true
-
-  '@mdit/plugin-tex@0.16.0':
-    resolution: {integrity: sha512-VWb5rJYP0eBRRjYhcaRE3r8UQkUaBXzu0l42ck7DOp+MSPsgXfS+bmk8/tyHG6/X/Mig9H92Lh1jzTqp3f5yKg==}
-    engines: {node: '>= 18'}
-    peerDependencies:
-      markdown-it: ^14.1.0
-    peerDependenciesMeta:
-      markdown-it:
-        optional: true
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -3095,6 +3068,10 @@ packages:
 
   markdown-it-texmath@1.0.0:
     resolution: {integrity: sha512-4hhkiX8/gus+6e53PLCUmUrsa6ZWGgJW2XCW6O0ASvZUiezIK900ZicinTDtG3kAO2kon7oUA/ReWmpW2FByxg==}
+
+  markdown-it-todo@1.0.5:
+    resolution: {integrity: sha512-bHfAbwSGSYdi/iG7G5XLyalU4xwZIlZMsd3xf25FGbLkramaia0oydpXJP8HJzJbLCnbM1kdko/zqZJBS9pYrw==}
+    engines: {node: '>=4'}
 
   markdown-it@14.1.0:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
@@ -5530,27 +5507,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@mdit/helper@0.16.0(markdown-it@14.1.0)':
-    dependencies:
-      '@types/markdown-it': 14.1.2
-    optionalDependencies:
-      markdown-it: 14.1.0
-
-  '@mdit/plugin-katex@0.16.7(markdown-it@14.1.0)':
-    dependencies:
-      '@mdit/helper': 0.16.0(markdown-it@14.1.0)
-      '@mdit/plugin-tex': 0.16.0(markdown-it@14.1.0)
-      '@types/markdown-it': 14.1.2
-      katex: 0.16.21
-    optionalDependencies:
-      markdown-it: 14.1.0
-
-  '@mdit/plugin-tex@0.16.0(markdown-it@14.1.0)':
-    dependencies:
-      '@types/markdown-it': 14.1.2
-    optionalDependencies:
-      markdown-it: 14.1.0
-
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -7788,6 +7744,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.0
 
   markdown-it-texmath@1.0.0: {}
+
+  markdown-it-todo@1.0.5: {}
 
   markdown-it@14.1.0:
     dependencies:
