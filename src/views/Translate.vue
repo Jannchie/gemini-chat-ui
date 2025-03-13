@@ -2,6 +2,7 @@
 import type { ChatMessage } from '../composables/useHelloWorld'
 import { BtnGroup, Paper, ScrollArea } from '@roku-ui/vue'
 import StreamContent from '../components/StreamContent.vue'
+import { model } from '../shared'
 
 const router = useRouter()
 function onHomeClick() {
@@ -42,7 +43,6 @@ const conversation = computed<ChatMessage[]>(() => [{
 
 const client = useClient()
 const translateContent = ref('')
-const model = useModel()
 const loading = ref(false)
 let requestId = 0
 watchEffect(async () => {

@@ -3,6 +3,7 @@ import type { ChatMessage } from '../composables/useHelloWorld'
 import { Paper, Tag } from '@roku-ui/vue'
 import { zodResponseFormat } from 'openai/helpers/zod'
 import { z } from 'zod'
+import { model } from '../shared'
 
 const props = withDefaults(defineProps<{
   content?: string
@@ -21,7 +22,6 @@ const conversation = computed<ChatMessage[]>(() => {
 })
 const client = useClient()
 
-const model = useModel()
 const Explains = z.array(z.object({
   word: z.string(),
   pos: z.string(),
