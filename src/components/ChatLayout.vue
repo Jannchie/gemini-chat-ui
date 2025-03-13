@@ -2,9 +2,9 @@
 import type { ChatMessage } from '../composables/useHelloWorld'
 import { GPTTokens } from 'gpt-tokens'
 import OpenAI from 'openai'
+import { model, useCurrentChat } from '../shared'
 import { generateId, isMobile } from '../utils'
 
-const model = useModel()
 const router = useRouter()
 
 function useSpeed(interval: number = 1000) {
@@ -151,8 +151,6 @@ const streaming = ref(false)
 //   }]
 // })
 
-provide('streaming', streaming)
-
 const prevUSD = ref(0)
 const prevToken = ref(0)
 
@@ -192,7 +190,7 @@ async function onSubmit() {
     const content = `${input.value.trim()}\n`
     inputHistory.commit()
     input.value = ''
-    conversation.value.push({ role: 'user', content })
+    conversation.value.push({ role: 'user', content }, { role: 'assistant', content: '' })
     conversation.value = [...conversation.value]
     nextTick(() => {
       const el = scrollArea.value
@@ -200,13 +198,12 @@ async function onSubmit() {
         scrollToBottomSmoothly(el, 1000)
       }
     })
-    const stream = await (aiClient.value.chat.completions as OpenAI.Chat.Completions).create({
+    const stream = await aiClient.value.chat.completions.create({
       messages: conversation.value,
       model: model.value,
       stream: true,
     }).catch((err) => {
       if (err instanceof OpenAI.APIError) {
-        conversation.value.push({ role: 'assistant', content: '' })
         switch (err.status) {
           case 401:
             conversation.value[conversation.value.length - 1].content = 'Invalid API Key.'
@@ -230,7 +227,6 @@ async function onSubmit() {
         throw err
       }
     })
-    conversation.value.push({ role: 'assistant', content: '' })
     if (!stream) {
       return
     }
@@ -390,7 +386,7 @@ async function onEnter(e: KeyboardEvent) {
       <div
         v-else
         ref="scrollArea"
-        class="h-full overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
+        class="h-full flex flex-col overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
       >
         <template
           v-for="g, i in groupedConversation"
@@ -442,7 +438,7 @@ async function onEnter(e: KeyboardEvent) {
             ref="textareaRef"
             v-model="input"
             type="text"
-            style="resize: none; scrollbar-width: none; max-height: 100px; height: auto;"
+            style="resize: none; scrollbar-width: none; max-height: 300px; height: auto;"
             :rows="rows"
             :class="{
               'rounded-[3rem]': rows === 1,
