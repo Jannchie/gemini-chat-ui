@@ -147,7 +147,7 @@ const CodeBlockWrapper = defineComponent({
       h('div', {
         class: 'code-block-toolbar bg-neutral-9 border-b px-4 text-neutral-4 py-2 flex justify-between items-center',
       }, [
-        h('span', { class: 'code-language text-sm' }, this.language || 'text'),
+        h('span', { class: 'code-language text-sm uppercase font-mono' }, this.language || 'text'),
         h('button', {
           class: 'copy-button text-sm w-6 h-6 rounded hover:bg-neutral-7 leading-0',
           onClick: this.copyCode,
