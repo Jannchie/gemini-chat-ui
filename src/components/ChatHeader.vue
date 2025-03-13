@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { getModelName } from '../utils'
+import { ref } from 'vue'
+import { useModels } from '../composables'
+import { apiKey, model, platform, serviceUrl } from '../shared'
+import { getPlatformIcon, getPlatformName } from '../utils'
 
-const apiKey = useApiKey()
-const serviceUrl = ref('')
-const modelParam = ref('')
 const showSelectModelModal = ref(false)
-const model = useModel()
 const showMobileMenu = ref(false)
-
-const displayModelName = computed(() => {
-  return getModelName(model.value)
+const models = useModels()
+watchEffect(() => {
+  console.log(models.value)
 })
 </script>
 
@@ -21,32 +19,23 @@ const displayModelName = computed(() => {
       class="flex cursor-pointer items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors hover:bg-neutral-8 md:px-4 md:py-2.5"
       @click="showSelectModelModal = true"
     >
-      <i class="i-tabler-brain text-sm text-blue-400" />
-      {{ displayModelName }}
+      <div class="text-lg leading-0">
+        <component :is="() => getPlatformIcon(platform)" />
+      </div>
+      {{ getPlatformName(platform) }}
       <i class="i-tabler-chevron-down ml-1 text-xs opacity-60" />
     </button>
 
-    <SelectModelModal
+    <SelectPresetModal
       v-model="showSelectModelModal"
-      v-model:model="model"
     />
 
     <!-- Desktop view - row of inputs -->
     <div class="hidden md:flex md:gap-3">
-      <div class="flex items-center gap-2">
-        <div class="flex items-center pr-2 text-lg">
-          <i class="i-tabler-key text-blue-400" />
-          <span class="pl-2 text-sm font-medium">API Key</span>
-        </div>
-        <input
-          v-model="apiKey"
-          placeholder="API Key"
-          class="w-36 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
-          type="password"
-        >
-      </div>
-
-      <div class="flex items-center gap-2">
+      <div
+        v-if="platform === 'custom'"
+        class="flex items-center gap-2"
+      >
         <div class="flex items-center pr-2 text-lg">
           <i class="i-tabler-link text-green-400" />
           <span class="pl-2 text-sm font-medium">Service URL</span>
@@ -65,10 +54,23 @@ const displayModelName = computed(() => {
           <span class="pl-2 text-sm font-medium">Model</span>
         </div>
         <input
-          v-model="modelParam"
-          placeholder="Model"
+          v-model="model"
+          placeholder="model"
           class="w-36 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
           type="text"
+        >
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div class="flex items-center pr-2 text-lg">
+          <i class="i-tabler-key text-blue-400" />
+          <span class="pl-2 text-sm font-medium">API Key</span>
+        </div>
+        <input
+          v-model="apiKey"
+          placeholder="API Key"
+          class="w-36 rounded-full bg-[#1e1e1f] px-6 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20"
+          type="password"
         >
       </div>
     </div>
@@ -114,7 +116,10 @@ const displayModelName = computed(() => {
             >
           </div>
 
-          <div class="flex flex-col gap-2">
+          <div
+            v-if="platform === 'custom'"
+            class="flex flex-col gap-2"
+          >
             <label class="flex items-center gap-2 text-sm font-medium">
               <i class="i-tabler-link text-green-400" />
               Service URL
@@ -133,7 +138,7 @@ const displayModelName = computed(() => {
               Model
             </label>
             <input
-              v-model="modelParam"
+              v-model="model"
               placeholder="Model"
               class="w-full rounded-lg bg-[#1e1e1f] px-4 py-2 text-sm text-[#e3e3e3] outline-none transition-all focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
               type="text"
