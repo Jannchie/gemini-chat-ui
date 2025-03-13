@@ -391,7 +391,7 @@ async function onEnter(e: KeyboardEvent) {
       <div
         v-else
         ref="scrollArea"
-        class="h-full flex flex-grow basis-0 flex-col overflow-x-hidden overflow-y-auto"
+        class="overflow-x-hidden overflow-y-auto last-children:min-h-[calc(100vh-120px-72px)]"
       >
         <template
           v-for="g, i in groupedConversation"
@@ -405,7 +405,7 @@ async function onEnter(e: KeyboardEvent) {
           />
         </template>
       </div>
-      <div class="input-section relative flex flex-col items-center gap-1 px-4">
+      <div class="input-section relative min-h-120px flex flex-col items-center justify-end gap-1 px-4">
         <div
           v-if="tokenCost"
           class="z-11 text-sm op-50"

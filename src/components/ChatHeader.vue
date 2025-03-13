@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useModels } from '../composables'
+// import { useModels } from '../composables'
 import { apiKey, customServiceUrl, model, platform } from '../shared'
 import { getPlatformIcon, getPlatformName } from '../utils'
 
 const showSelectModelModal = ref(false)
 const showMobileMenu = ref(false)
-const models = useModels()
-watchEffect(() => {
-  console.log(models.value)
-})
+// const models = useModels()
+// watchEffect(() => {
+//   console.log(models.value)
+// })
 </script>
 
 <template>

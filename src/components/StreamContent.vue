@@ -50,7 +50,7 @@ const formatedContent = computed(() => {
   const msg = content.value
   return splitContent(msg)
 })
-const contentFormated = computed(() => {
+const contentFinal = computed(() => {
   const msg = content.value
   if (props.loading) {
     return formatedContent.value
@@ -60,10 +60,8 @@ const contentFormated = computed(() => {
   }
 })
 
-const contentResult = computedWithControl([
-  contentFormated,
-], () => {
-  const r = md.render(contentFormated.value ?? '', {
+const contentVNodes = computedWithControl([contentFinal], () => {
+  const r = md.render(contentFinal.value ?? '', {
     sanitize: true,
   }) as unknown as VNode[]
   return editResult(r)
@@ -71,10 +69,10 @@ const contentResult = computedWithControl([
 const reasoning = computed(() => {
   return props.reasoning
 })
-const reasoningResult = computedWithControl([
+const reasoningVNodes = computedWithControl([
   reasoning,
 ], () => {
-  return md.render(props.reasoning ?? '', {
+  return md.render(reasoning.value ?? '', {
     sanitize: true,
   }) as unknown as VNode[]
 })
@@ -83,7 +81,7 @@ const reasoningResult = computedWithControl([
 const StreamMarkdownContent = defineComponent({
   setup() {
     return () => {
-      return contentResult.value
+      return contentVNodes.value
     }
   },
 })
@@ -92,27 +90,30 @@ const StreamMarkdownContent = defineComponent({
 const StreamMarkdownReasoning = defineComponent({
   setup() {
     return () => {
-      return reasoningResult.value
+      return reasoningVNodes.value
     }
   },
 })
 debouncedWatch([content], () => {
-  contentResult.trigger()
+  reasoningVNodes.trigger()
 }, {
-  debounce: 100,
+  debounce: 300,
 })
 
 debouncedWatch([reasoning], () => {
-  reasoningResult.trigger()
+  reasoningVNodes.trigger()
 }, {
-  debounce: 100,
+  debounce: 300,
 })
+// watchEffect(() => {
+//   console.log(content.value)
+// })
 </script>
 
 <template>
   <div>
     <div
-      v-if="props.reasoning"
+      v-if="reasoning && reasoning.length > 0"
       class="mb-4 min-w-full w-full overflow-auto rounded-xl bg-neutral-1 px-4 py-2 text-xs prose prose-gray dark:bg-neutral-950 dark:prose-invert"
     >
       <StreamMarkdownReasoning />
