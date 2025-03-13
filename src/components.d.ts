@@ -10,6 +10,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AsideContainer: typeof import('./components/AsideContainer.vue')['default']
     AssistantChatMessage: typeof import('./components/AssistantChatMessage.vue')['default']
+    AutoH: typeof import('./components/AutoHeightTransition.vue')['default']
+    AutoHeightTransition: typeof import('./components/AutoHeightTransition.vue')['default']
     BaseContainer: typeof import('./components/BaseContainer.vue')['default']
     Chat: typeof import('./views/Chat.vue')['default']
     ChatAside: typeof import('./components/ChatAside.vue')['default']
@@ -23,7 +25,8 @@ declare module 'vue' {
     RecentChatWrapper: typeof import('./components/RecentChatWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SelectModelModal: typeof import('./components/SelectModelModal.vue')['default']
+    SelectModelModal: typeof import('./components/SelectPresetModal.vue')['default']
+    SelectPresetModal: typeof import('./components/SelectPresetModal.vue')['default']
     StreamContent: typeof import('./components/StreamContent.vue')['default']
     Translate: typeof import('./views/Translate.vue')['default']
     UserChatMessage: typeof import('./components/UserChatMessage.vue')['default']

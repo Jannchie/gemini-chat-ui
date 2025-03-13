@@ -123,7 +123,7 @@ watchEffect(async () => {
                   <input
                     v-model="targetLang"
                     placeholder="Language"
-                    class="bg-surface-base/80 focus:border-primary-500 focus:ring-primary-500/20 h-46px w-40 border border-neutral-700/50 rounded-2xl py-3 pl-12 pr-4 text-lg outline-none transition-all focus:ring-2"
+                    class="bg-surface-base/80 focus:ring-primary-500/20 focus:border-primary-500 h-46px w-40 border border-neutral-700/50 rounded-2xl py-3 pl-12 pr-4 text-lg outline-none transition-all focus:ring-2"
                   >
                 </div>
                 <div>
