@@ -197,7 +197,7 @@ async function onSubmit() {
     })
     const lastMessage = conversation.value[conversation.value.length - 1]
     const stream = await aiClient.value.chat.completions.create({
-      messages: conversation.value,
+      messages: conversation.value.slice(0, -1),
       model: model.value,
       stream: true,
     }).catch((err) => {
