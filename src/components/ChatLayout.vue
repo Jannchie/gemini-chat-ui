@@ -98,7 +98,7 @@ const groupedConversation = computed(() => {
   }
   return result
 })
-
+const enableAutoScroll = ref(false)
 function scrollToBottomSmoothly(element: { scrollTop: number, scrollHeight: number, clientHeight: number }, duration: number) {
   const start = element.scrollTop
   const end = element.scrollHeight - element.clientHeight
@@ -122,6 +122,7 @@ function scrollToBottomSmoothly(element: { scrollTop: number, scrollHeight: numb
     }
     else {
       element.scrollTop = end
+      enableAutoScroll.value = true
     }
   }
 
@@ -235,6 +236,9 @@ async function onSubmit() {
     for await (const chunk of stream) {
       const lastMessage = conversation.value[conversation.value.length - 1]
       const delta = chunk.choices[0].delta as any
+      if (!delta) {
+        continue
+      }
       if (delta.content) {
         trigger()
         lastMessage.content += delta.content
@@ -348,7 +352,12 @@ async function onEnter(e: KeyboardEvent) {
   }
   onSubmit()
 }
-useScrollToBottom(scrollArea)
+useScrollToBottom(scrollArea, 50, enableAutoScroll)
+watchEffect(() => {
+  if (streaming.value) {
+    enableAutoScroll.value = false
+  }
+})
 </script>
 
 <template>
