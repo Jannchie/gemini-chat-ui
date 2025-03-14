@@ -17,6 +17,8 @@ export const serviceUrl = computed(() => {
       return 'https://openrouter.ai/api/v1/'
     case 'deepseek':
       return 'https://api.deepseek.com'
+    case 'pfn':
+        return 'https://api.platform.preferredai.jp/v1'
   }
 })
 const apiKeyKey = computed(() => {
@@ -28,14 +30,31 @@ const modelKeyKey = computed(() => {
 })
 export const model = useLocalStorage(modelKeyKey, '')
 export const apiKey = useLocalStorage(apiKeyKey, '')
+
+const defaultHeaders = computed(()=>{
+  const headers: Record<string, string|null> = {
+    'x-stainless-timeout':null,
+    'x-stainless-os':null,
+    'x-stainless-version':null,
+    'x-stainless-package-version':null,
+    'x-stainless-runtime-version':null,
+    'x-stainless-runtime':null,
+    'x-stainless-arch':null,
+    'x-stainless-retry-count':null,
+    'x-stainless-lang':null,
+  }
+  if (platform.value === 'anthropic') {
+    headers['anthropic-dangerous-direct-browser-access'] = 'true'
+  }
+  return headers
+})
+
 export const client = computed(() => {
   return new OpenAI({
     apiKey: apiKey.value,
     baseURL: serviceUrl.value,
     dangerouslyAllowBrowser: true,
-    defaultHeaders:{
-      
-    }
+    defaultHeaders: defaultHeaders.value
   })
 })
 
