@@ -8,25 +8,7 @@ import { generateId, isMobile } from '../utils'
 
 const router = useRouter()
 
-function useSpeed(interval: number = 1000) {
-  const record = ref<[number, number][]>([])
-  function trigger(num = 1) {
-    record.value.push([Date.now(), num])
-    record.value = [...record.value].filter(d => d[0] > Date.now() - interval)
-  }
-
-  const speed = computed(() => {
-    if (record.value.length < 2) {
-      return 0
-    }
-    return record.value.reduce((acc, cur) => acc + cur[1], 0) / (record.value[record.value.length - 1][0] - record.value[0][0]) * 1000
-  })
-  return {
-    speed,
-    trigger,
-  }
-}
-
+const lastUsage = ref<OpenAI.Completions.CompletionUsage | null>(null)
 const conversation = shallowRef<ChatMessage[]>([])
 
 const [chatHistory, setChatHistory] = useChatHistory()
@@ -56,7 +38,6 @@ const tokenCost = computed(() => {
   }
 })
 
-const { speed, trigger } = useSpeed(10000)
 const aiClient = useClient()
 
 async function generateSummary(text: string) {
@@ -174,6 +155,8 @@ function getNumberOfLines(textarea: HTMLTextAreaElement) {
 watch(currentChat, () => {
   textareaRef.value?.focus()
 })
+const laststartedAtMS = ref(0)
+const lastEndedAtMS = ref(0)
 async function onSubmit() {
   if (input.value.trim() === '' || streaming.value) {
     return
@@ -204,6 +187,9 @@ async function onSubmit() {
       messages: filteredConversition,
       model: model.value,
       stream: true,
+      stream_options: {
+        include_usage: true,
+      },
       // max_tokens: 8196,
     }).catch((err) => {
       if (err instanceof OpenAI.APIError) {
@@ -233,19 +219,37 @@ async function onSubmit() {
     if (!stream) {
       return
     }
+    laststartedAtMS.value = 0
+    lastEndedAtMS.value = 0
     for await (const chunk of stream) {
+      // get token usage
+      const usage = chunk.usage
+      if (usage) {
+        lastEndedAtMS.value = Date.now()
+        lastUsage.value = usage
+      }
+
       const lastMessage = conversation.value[conversation.value.length - 1]
+      if (chunk.choices.length === 0) {
+        continue
+      }
+
       const delta = chunk.choices[0].delta as any
       if (!delta) {
         continue
       }
+
+      if (laststartedAtMS.value === 0) {
+        laststartedAtMS.value = Date.now()
+      }
+
       if (delta.content) {
-        trigger()
         lastMessage.content += delta.content
       }
       if (delta.reasoning && lastMessage.role === 'assistant') {
         lastMessage.reasoning += delta.reasoning
       }
+
       conversation.value = conversation.value.map(d => ({ ...d }))
     }
   }
@@ -278,35 +282,11 @@ async function onSubmit() {
     }
   }
 }
-
+const lastTimeUsageMS = computed(() => {
+  return lastEndedAtMS.value - laststartedAtMS.value
+})
 onMounted(() => {
   textareaRef.value?.focus()
-})
-
-const totalToken = computed(() => {
-  if (streaming.value) {
-    return prevToken.value + (tokenCost.value?.usedTokens ?? 0)
-  }
-  return prevToken.value
-})
-
-const totalUSD = computed(() => {
-  if (streaming.value) {
-    return (prevUSD.value + (tokenCost.value?.usedUSD ?? 0))
-  }
-  return prevUSD.value
-})
-
-const totalTokenTransition = useTransition(totalToken, {
-  duration: 1000,
-})
-
-const totalUSDTransition = useTransition(totalUSD, {
-  duration: 1000,
-})
-
-const extraInfo = computed(() => {
-  return `Used Tokens: ${totalTokenTransition.value.toFixed(0)} (${totalUSDTransition.value.toFixed(5)}$) Speed: ${speed.value.toFixed(1)}/s`
 })
 
 async function onEnter(e: KeyboardEvent) {
@@ -419,12 +399,21 @@ watchEffect(() => {
       </div>
       <div class="input-section relative min-h-120px flex shrink-0 flex-col items-center justify-end gap-1 px-4">
         <div
-          v-if="tokenCost"
-          class="z-11 text-sm op-50"
+          v-if="lastUsage"
+          class="z-10 flex items-center rounded-md text-sm op50 shadow-sm"
         >
-          {{ extraInfo }}
-        </div>
+          <!-- 合并的输入/输出统计 -->
+          <div class="mr-6 flex items-center">
+            <span class="mr-1 font-medium">Input/Output:</span>
+            <span>{{ lastUsage.prompt_tokens }} / {{ lastUsage.completion_tokens }} Token</span>
+          </div>
 
+          <!-- 性能指标 -->
+          <div class="flex items-center">
+            <span class="mr-1 font-medium">Speed:</span>
+            <span>{{ (lastUsage.completion_tokens / lastTimeUsageMS * 1000).toFixed(2) }} Token/s</span>
+          </div>
+        </div>
         <div class="relative z-10 max-w-830px w-full overflow-hidden leading-0">
           <div
             :class="{
