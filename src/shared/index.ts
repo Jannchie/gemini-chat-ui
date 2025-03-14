@@ -30,9 +30,6 @@ export const model = useLocalStorage(modelKeyKey, '')
 export const apiKey = useLocalStorage(apiKeyKey, '')
 export const client = computed(() => {
   return new OpenAI({
-    defaultHeaders: {
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
     apiKey: apiKey.value,
     baseURL: serviceUrl.value,
     dangerouslyAllowBrowser: true,
