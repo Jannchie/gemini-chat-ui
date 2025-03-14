@@ -26,10 +26,7 @@ function useSpeed(interval: number = 1000) {
   }
 }
 
-const conversation = shallowRef<ChatMessage[]>([{
-  role: 'system',
-  content: ``,
-}])
+const conversation = shallowRef<ChatMessage[]>([])
 
 const [chatHistory, setChatHistory] = useChatHistory()
 const currentChat = useCurrentChat()
@@ -38,10 +35,7 @@ watchEffect(() => {
     conversation.value = currentChat.value.conversation
   }
   else {
-    conversation.value = [{
-      role: 'system',
-      content: ``,
-    }]
+    conversation.value = []
   }
 })
 
@@ -196,10 +190,19 @@ async function onSubmit() {
       }
     })
     const lastMessage = conversation.value[conversation.value.length - 1]
+    
+    const filteredConversition = conversation.value.slice(0, -1).map(d=>{
+      if(d.role === 'assistant'){
+        delete d.reasoning
+      }
+      return d
+    })
+
     const stream = await aiClient.value.chat.completions.create({
-      messages: conversation.value.slice(0, -1),
+      messages: filteredConversition,
       model: model.value,
       stream: true,
+      // max_tokens: 8196,
     }).catch((err) => {
       if (err instanceof OpenAI.APIError) {
         switch (err.status) {

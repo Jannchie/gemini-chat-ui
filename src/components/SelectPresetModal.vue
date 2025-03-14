@@ -4,8 +4,9 @@ import { getPlatformIcon, getPlatformName } from '../utils'
 
 const presets = [
   'openai',
-  'openrouter',
   'anthropic',
+  'pfn',
+  'openrouter',
   'custom',
 ]
 
