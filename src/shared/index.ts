@@ -33,6 +33,9 @@ export const client = computed(() => {
     apiKey: apiKey.value,
     baseURL: serviceUrl.value,
     dangerouslyAllowBrowser: true,
+    defaultHeaders:{
+      
+    }
   })
 })
 
