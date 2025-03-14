@@ -2,6 +2,7 @@
 import type { ChatMessage } from '../composables/useHelloWorld'
 import { GPTTokens } from 'gpt-tokens'
 import OpenAI from 'openai'
+import { useScrollToBottom } from '../composables/useScrollToBottom'
 import { model, useCurrentChat } from '../shared'
 import { generateId, isMobile } from '../utils'
 
@@ -190,9 +191,9 @@ async function onSubmit() {
       }
     })
     const lastMessage = conversation.value[conversation.value.length - 1]
-    
-    const filteredConversition = conversation.value.slice(0, -1).map(d=>{
-      if(d.role === 'assistant'){
+
+    const filteredConversition = conversation.value.slice(0, -1).map((d) => {
+      if (d.role === 'assistant') {
         delete d.reasoning
       }
       return d
@@ -347,6 +348,7 @@ async function onEnter(e: KeyboardEvent) {
   }
   onSubmit()
 }
+useScrollToBottom(scrollArea)
 </script>
 
 <template>
@@ -406,7 +408,7 @@ async function onEnter(e: KeyboardEvent) {
           />
         </template>
       </div>
-      <div class="input-section relative min-h-120px flex flex-col items-center justify-end gap-1 px-4">
+      <div class="input-section relative min-h-120px flex shrink-0 flex-col items-center justify-end gap-1 px-4">
         <div
           v-if="tokenCost"
           class="z-11 text-sm op-50"
@@ -449,7 +451,7 @@ async function onEnter(e: KeyboardEvent) {
               'rounded-[3rem]': rows === 1,
               'rounded-[1rem]': rows !== 1,
             }"
-            class="input-enter-animate z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
+            class="input-enter-animate z-10 w-full flex-grow-0 bg-[#1e1e1f] px-6 py-4 pr-14 text-lg text-[#e3e3e3] outline-1 outline-none transition-all focus:bg-neutral-8 hover:bg-neutral-8 focus-visible:outline-1 focus-visible:outline-transparent focus-visible:outline-offset-0"
             placeholder="Input your question here"
             @keydown.stop.up="async (e) => {
               if (!(input === '')) return
