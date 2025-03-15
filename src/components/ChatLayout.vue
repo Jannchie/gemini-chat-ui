@@ -1,40 +1,22 @@
 <script setup lang="ts">
 import type { ChatMessage } from '../composables/useHelloWorld'
-import { GPTTokens } from 'gpt-tokens'
 import OpenAI from 'openai'
 import { useScrollToBottom } from '../composables/useScrollToBottom'
 import { model, useCurrentChat } from '../shared'
-import { generateId, isMobile } from '../utils'
+import { generateId, isMobile, setChat } from '../utils'
 
 const router = useRouter()
 
 const lastUsage = ref<OpenAI.Completions.CompletionUsage | null>(null)
 const conversation = shallowRef<ChatMessage[]>([])
-
-const [chatHistory, setChatHistory] = useChatHistory()
 const currentChat = useCurrentChat()
+
 watchEffect(() => {
   if (currentChat.value) {
     conversation.value = currentChat.value.conversation
   }
-  else {
+  else {``
     conversation.value = []
-  }
-})
-
-const conversationThrottled = useThrottle(conversation, 1000, true, true)
-const tokenCost = computed(() => {
-  try {
-    if (conversationThrottled.value.filter(d => d.role === 'assistant').length === 0) {
-      return null
-    }
-    return new GPTTokens({
-      model: model.value as any,
-      messages: conversationThrottled.value,
-    })
-  }
-  catch {
-    return null
   }
 })
 
@@ -114,23 +96,6 @@ const scrollArea = ref<HTMLElement | null>(null)
 const input = ref('')
 const inputHistory = useManualRefHistory(input)
 const streaming = ref(false)
-
-// watchEffect(() => {
-//   conversation.value = [{
-//     role: 'system',
-//     content: ``,
-//   }, {
-//     role: 'user',
-//     content: `123`,
-//   }, {
-//     role: 'assistant',
-//     content: input.value,
-//   }]
-// })
-
-const prevUSD = ref(0)
-const prevToken = ref(0)
-
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const rows = ref(1)
 watch([input, textareaRef], () => {
@@ -162,13 +127,33 @@ async function onSubmit() {
     return
   }
   streaming.value = true
+  let chat = currentChat.value
+  if (!chat) {
+    // Create a new chat history entry at the start
+    const id = generateId()
+    chat = {
+      id,
+      title: null,
+      conversation: conversation.value,
+    }
+    setChat(chat)
+    router.push({
+      name: 'chat',
+      params: {
+        id,
+      },
+    })
+  }
+
+
   try {
     const content = `${input.value.trim()}\n`
     inputHistory.commit()
     input.value = ''
-    conversation.value.push({ role: 'user', content }, { role: 'assistant', content: '', reasoning: '' })
-    conversation.value = [...conversation.value]
-    nextTick(() => {
+
+    conversation.value = [...conversation.value, { role: 'user', content }, { role: 'assistant', content: '', reasoning: '' }]
+    setChat(toRaw({ ...chat, conversation: conversation.value }))
+  nextTick(() => {
       const el = scrollArea.value
       if (el) {
         scrollToBottomSmoothly(el, 1000)
@@ -255,30 +240,19 @@ async function onSubmit() {
   }
   finally {
     streaming.value = false
-    nextTick(() => {
-      prevUSD.value += tokenCost.value?.usedUSD ?? 0
-      prevToken.value += tokenCost.value?.usedTokens ?? 0
-    })
-    if (currentChat.value) {
-      currentChat.value.conversation = unref(conversation.value)
-      setChatHistory([...chatHistory.value])
-    }
-    else {
-      const id = generateId()
-      const aiMessage = conversation.value.filter(d => d.role === 'assistant').map(d => d.content).join('\n')
-      const summary = await generateSummary(aiMessage)
-      const newChat = {
-        id,
-        title: summary ?? 'New Chat',
-        conversation: unref(conversation.value),
+
+    if (chat) {
+      chat.conversation = conversation.value
+      chat = toRaw(chat)
+      setChat(chat)
+      if (!chat.title) {
+        const aiMessage = conversation.value.filter(d => d.role === 'assistant').map(d => d.content).join('\n')
+        const summary = await generateSummary(aiMessage)
+        setChat({
+          ...chat,
+          title: summary,
+        })
       }
-      setChatHistory([newChat, ...chatHistory.value])
-      router.push({
-        name: 'chat',
-        params: {
-          id,
-        },
-      })
     }
   }
 }

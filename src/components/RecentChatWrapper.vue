@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { vAutoAnimate } from '@formkit/auto-animate'
 import { computed, ref } from 'vue'
-import { useCurrentChat } from '../shared'
+import { chatHistory, useCurrentChat } from '../shared'
 
-const [chatHistory, _] = useChatHistory()
 const currentChat = useCurrentChat()
 const displayLimit = ref(5)
 const showAll = ref(false)

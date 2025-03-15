@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { vAutoAnimate } from '@formkit/auto-animate'
 import { computed, ref } from 'vue'
-import { useCurrentChat } from '../shared'
+import { chatHistory, useCurrentChat } from '../shared'
+import { deleteChat } from '../utils'
 
 const router = useRouter()
 function onNewChatClick() {
@@ -10,7 +11,6 @@ function onNewChatClick() {
   })
 }
 const currentChat = useCurrentChat()
-const [chatHistory, setChatHistory] = useChatHistory()
 const displayLimit = ref(5)
 const showAll = ref(false)
 
@@ -48,7 +48,7 @@ onClickOutside(menuRef, (e) => {
   openedMenuChat.value = null
 })
 
-function onDelete(e: MouseEvent) {
+async function onDelete(e: MouseEvent) {
   e.stopPropagation()
   e.preventDefault()
   // showMenu.value = false
@@ -56,10 +56,9 @@ function onDelete(e: MouseEvent) {
   if (!openedMenuChatValue) {
     return
   }
-  chatHistory.value = [...chatHistory.value.filter(chat => chat.id !== openedMenuChatValue.id)]
-  setChatHistory(chatHistory.value)
+  deleteChat(openedMenuChatValue.id)
   if (currentChat.value?.id === openedMenuChatValue.id) {
-    currentChat.value = null
+    router.push('/chat')
   }
   openedMenuChat.value = null
 }

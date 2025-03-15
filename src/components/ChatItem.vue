@@ -17,7 +17,6 @@ const showMenu = computed(() => openedMenuChat.value?.id === props.chatData.id)
 
 const router = useRouter()
 function onClick() {
-  // currentChat = chatData
   router.push({
     name: 'chat',
     params: {
@@ -42,7 +41,7 @@ function onClick() {
     >
       <i class="i-tabler-message m-2 flex-shrink-0" />
       <span class="flex-grow overflow-x-hidden text-ellipsis text-left text-nowrap">
-        {{ chatData.title }}
+        {{ chatData.title ?? 'Untitled Chat'}}
       </span>
       <button
         v-if="hover || showMenu"
