@@ -1,5 +1,5 @@
 {
-  "name": "chat-gemini-ui",
+  "name": "chat-ui",
   "type": "module",
   "version": "0.0.1",
   "private": true,

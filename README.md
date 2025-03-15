@@ -2,9 +2,11 @@
 
 [![CodeTime Badge](https://img.shields.io/endpoint?style=social&color=222&url=https%3A%2F%2Fapi.codetime.dev%2Fshield%3Fid%3D2%26project%3Dgemini-chat-ui%26in=0)](https://codetime.dev)
 
+A generic frontend-only page for accessing various LLM APIs.
+
 ## DEMO
 
-[Online Demo](https://gemini-chat-ui-six.vercel.app/)
+[Online Demo](https://chat.jannchie.com/)
 
 <p align="center" style="overflow: hidden; border-radius:">
   <img alt="preview" src="preview/gumini-style-chat-ui.gif">

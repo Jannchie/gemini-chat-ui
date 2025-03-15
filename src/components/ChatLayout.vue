@@ -321,13 +321,13 @@ watchEffect(() => {
       <ChatHeader />
       <div
         v-if="conversation.length <= 1"
-        class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto px-2 text-3.5rem font-medium leading-4rem"
+        class="m-auto h-full max-w-830px w-full overflow-x-hidden overflow-y-auto px-4 text-3.5rem font-medium leading-4rem"
       >
         <div class="sm:mb-12 sm:mt-8">
-          <div class="gradient-text">
+          <div class="gradient-text text-3xl md:text-4xl lg:text-5xl">
             Hi there!
           </div>
-          <div class="animate-fade-delay text-3rem">
+          <div class="animate-fade-delay text-2xl md:text-3xl lg:text-4xl">
             <div class="op-25">
               What can I help you today?
             </div>
@@ -336,7 +336,7 @@ watchEffect(() => {
         <div class="mb-10 mt-20 flex gap-4">
           <div class="animate-fade-delay">
             <button
-              class="h-200px w-200px flex flex-col justify-between rounded-xl bg-neutral-8 p-5 leading-0 shadow-sm transition-colors hover:bg-neutral-7"
+              class="w-full sm:h-200px sm:w-200px flex flex-row sm:flex-col justify-between rounded-xl bg-neutral-8 p-4 sm:p-5 leading-0 shadow-sm transition-colors hover:bg-neutral-7"
               @click="router.push({ name: 'translate' })"
             >
               <div class="flex items-center gap-2">
@@ -347,7 +347,7 @@ watchEffect(() => {
                   Translate
                 </div>
               </div>
-              <div class="mt-4 text-xs text-neutral-5">
+              <div class="ml-auto hidden sm:ml-0 sm:mt-4 text-xs text-neutral-5 sm:flex items-center">
                 Easily translate between multiple languages
               </div>
             </button>
