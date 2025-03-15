@@ -21,6 +21,7 @@ declare module 'vue' {
     RecentChatWrapper: typeof import('./components/RecentChatWrapper.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelectModelModal: typeof import('./components/SelectModelModal.vue')['default']
     SelectPresetModal: typeof import('./components/SelectPresetModal.vue')['default']
     StreamContent: typeof import('./components/StreamContent.vue')['default']
     Translate: typeof import('./views/Translate.vue')['default']
