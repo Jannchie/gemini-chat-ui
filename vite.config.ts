@@ -34,8 +34,8 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
       },
       manifest: {
-        name: 'Chat Gemini UI',
-        short_name: 'Chat G',
+        name: 'Jannchie\'s Chat UI',
+        short_name: 'Chat UI',
         description: 'A chat application built with Gemini UI Style',
         theme_color: '#131314',
         icons: [
