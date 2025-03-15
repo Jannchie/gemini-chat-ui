@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@formkit/auto-animate": "^0.8.2",
-    "@iconify/json": "^2.2.316",
+    "@iconify/json": "^2.2.317",
     "@jannchie/eslint-config": "^3.4.4",
     "@shikijs/markdown-it": "^3.2.1",
     "@types/dom-view-transitions": "^1.0.6",
@@ -48,7 +48,7 @@
     "unocss": "66.1.0-beta.5",
     "unplugin-auto-import": "^19.1.1",
     "unplugin-vue-components": "^28.4.1",
-    "vite": "^6.2.1",
+    "vite": "^6.2.2",
     "vite-plugin-pwa": "^0.21.1",
     "vite-plugin-vue-devtools": "^7.7.2",
     "vitest": "^3.0.8",
