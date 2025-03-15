@@ -21,15 +21,25 @@ watch([searchQuery],()=>{
 })
 
 function handleKeyDown(event: KeyboardEvent) {
-  if (event.key === 'ArrowDown') {
-    highlightedIndex.value = (highlightedIndex.value + 1) % filteredModels.value.length
-  } else if (event.key === 'ArrowUp') {
-    highlightedIndex.value = (highlightedIndex.value - 1 + filteredModels.value.length) % filteredModels.value.length
-  } else if (event.key === 'Enter' && highlightedIndex.value >= 0) {
-    updateModel(filteredModels.value[highlightedIndex.value])
-    event.stopPropagation()
-  } else {
-    searchInputRef.value?.focus()
+  switch (event.key) {
+    case 'Escape':
+      closeModal();
+      break;
+    case 'ArrowDown':
+      highlightedIndex.value = (highlightedIndex.value + 1) % filteredModels.value.length;
+      break;
+    case 'ArrowUp':
+      highlightedIndex.value = (highlightedIndex.value - 1 + filteredModels.value.length) % filteredModels.value.length;
+      break;
+    case 'Enter':
+      if (highlightedIndex.value >= 0) {
+        updateModel(filteredModels.value[highlightedIndex.value]);
+        event.stopPropagation();
+      }
+      break;
+    default:
+      searchInputRef.value?.focus();
+      break;
   }
 }
 
